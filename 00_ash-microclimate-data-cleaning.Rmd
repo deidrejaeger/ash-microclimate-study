@@ -14,3 +14,10 @@ Data cleaning steps
  - import dates as.date
  
  3) combine all data into 1 spreadsheet
+ (ctrl opt i)
+ 
+```{r}
+tree_data <- read.csv("data/")
+```
+ 
+ 
