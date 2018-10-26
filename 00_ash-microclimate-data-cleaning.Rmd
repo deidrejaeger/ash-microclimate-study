@@ -13,4 +13,11 @@ Data cleaning steps
  - check that the classes are correct for numbers and factors
  - import dates as.date
  
- 3) combine all data into 1 spreadsheet
+3) check if sensors were turned off during morning of day 3 (Sep 20)
+ 
+ 4) combine all data into 1 spreadsheet
+ - column names ()
+ - each row is temperature measurement at a given minute
+ 
+ 
+ 
