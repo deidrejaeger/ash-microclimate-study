@@ -1,0 +1,12 @@
+---
+title: "ash-microclimate-data-exploration"
+author: "Deidre Jaeger"
+date: "10/25/2018"
+output: html_document
+---
+
+1. histogram of the temperature measurements of each sensor (x axis = sensor #, y axis = freq)
+   - are there any erroneous measurement?
+2. time series plot for each of the 4 sensors (x-axis = time, y axis = temperature F)
+3. combined time series plots for all 4 sensors
+
