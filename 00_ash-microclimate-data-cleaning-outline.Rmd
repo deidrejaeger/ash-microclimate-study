@@ -52,7 +52,7 @@ str(sensor_100e_1) # we will eventually want date to be formated as date, but nu
  
 ```{r-format-date-time}
 
-
+as.date()
 
 ```
  
