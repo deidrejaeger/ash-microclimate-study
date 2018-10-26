@@ -29,5 +29,3 @@ dat86 <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", header = TRU
 ```
  
  
- 
- 
