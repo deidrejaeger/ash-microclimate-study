@@ -19,33 +19,71 @@ Data cleaning steps
  - column names ()
  - each row is temperature measurement at a given minute
  
+```{r-load-libraries}
+
+```
+ 
+ 
  
 ```{r-import-data}
 
 # import the data from each sensor
 
-dat86 <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", header = TRUE)
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
+treatment_100e_before$blank1 <- NULL # Remove the blank columns
+treatment_100e_before$blank2 <- NULL # Remove the blank columns
+treatment_100e_before$sensor_name <- rep("treatment_100e") # fill column with the sensor name
+treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
 
-# We can't open these CSV files because the headers aren't formated correctly
-
-# so instead we add some code to modify how to open it
-sensor_100e_1 <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_name", "blank1", "blank2", "blank3"))
-sensor_100e_1$blank1 <- NULL # Remove the blank columns
-sensor_100e_1$blank2 <- NULL # Remove the blank columns
-sensor_100e_1$blank3 <- NULL # Remove the blank columns
-sensor_100e_1$sensor_name <- rep("ash_removal_100e") 
+# check the first 6 rows to see if the dataframe looks as we expect
+head(treatment_100e_before)
 
 # check the structure of how it is loaded
-str(sensor_100e_1) # we will eventually want date to be formated as date, but number for temp and character for sensor name look good
+str(treatment_100e_before) # we will eventually want date to be formated as date, but for now having number for temp and character for sensor name look good
+
+
+# open the second file of the treatment-tree 100e, from the "after" removal
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
+sensor_100e_after$blank1 <- NULL # Remove the blank columns
+sensor_100e_after$blank2 <- NULL # Remove the blank columns
+sensor_100e_after$sensor_name <- rep("treatment_100e") # fill column with the sensor name
+sensor_100e_after$ash_removal <- rep("after_removal") # fill the column with the ash removal status
+
+# check the first 6 rows to see if the dataframe looks as we expect
+head(sensor_100e_after)
+
+# check the structure of how it is loaded
+str(sensor_100e_after) # we will eventually want date to be formated as date, but for now having number for te
 
 # could create a loop to do this for all the files in the temp data folder
+# dataframe names:
+treatment_100e_before
+treatment_100e_after 
+treatment_101w_before
+treatment_101w_after
+control_ash_before # will want to omit the times when the treatment sensors were off on Sept 20
+control_ash_after # will want to omit the times when the treatment sensors were off on Sept 20
+control_sun_before # will want to omit the times when the treatment sensors were off on Sept 20
+control_sun_after # will want to omit the times when the treatment sensors were off on Sept 20
+
 
 
 ```
  
 ```{r-bind-into-1-csv}
 
-# use the commands rbind() to aggregate into 1 dataframe
+# aggregate the before and after dataframes into 1 dataframe
+
+# for example:
+sensor_data <- rbind(sensor_100e_before, sensor_100e_after)
 
 
 ```
