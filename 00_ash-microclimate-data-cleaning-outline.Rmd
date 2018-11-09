@@ -34,8 +34,11 @@ treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.cs
                           skip = 1, # skip reading the first row
                           header = TRUE, # define the second row as the header
                           col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
+
+
 treatment_100e_before$blank1 <- NULL # Remove the blank columns
 treatment_100e_before$blank2 <- NULL # Remove the blank columns
+
 treatment_100e_before$sensor_name <- rep("treatment_100e") # fill column with the sensor name
 treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
 
