@@ -5,39 +5,46 @@ date: "10/12/2018"
 output: html_document
 ---
 
-Data cleaning steps
-1) import the tree data csv file
-  - check that the classes are correct for numbers and factors
-  - import dates as.date
-2) import the sensor datafiles
- - check that the classes are correct for numbers and factors
- - import dates as.date
- 
-3) check if sensors were turned off during morning of day 3 (Sep 20)
- 
- 4) combine all data into 1 spreadsheet
- - column names ()
- - each row is temperature measurement at a given minute
- 
-```{r-load-libraries}
+Reproducible data cleaning steps
 
+*Step 1:* import the treatment sensor datafiles
+  - upon import: skip the header rows, rename columns
+  - assign sensor label and ash removal status
+  - check that date and temp classes are correct: date_time: chr, tempF: num
+*Step 2:* import the control sensor datafiles
+
+*Step 3:* bind all the csvs from each sensor into 1 single dataframe
+   - each row is temperature measurement at a given second at a given location spanning the entire study          period (Sept 18 to Sept 22, 2018)
+*Step 4:* format the date and time in R friendly POSIXct format
+*Step 5:* set factors for categorical name and serial number of sensors and ash removal status
+*Step 6:* export a new csv with the cleaned data
+*Step 7:* fill in a textfile called "readme-boulder-ash-data2018" with the metadata about the sensor data
+            - include: data about each of the trees and locations, the types of sensors used, the type of radiation shield used, the height placed from the ground
+
+
+ 
+```{r load-libraries}
+# use install.packages("insert-package-name-here") if you get an error message that says "there is no package called ....x...."
+
+library(dplyr) # for mutate() functionality
+library(lubridate) # for as.POSIX function
+options(stringsAsFactors = FALSE) # so that dates read in as character strings not factors (factors are troublesome for converting to dates)
 ```
  
- 
- 
-```{r-import-data}
+```{r step1-import-treatment-data}
 
-# import the data from each sensor
+# import the data from the treatment and control sensors
 
 # open the first file of the treatment-tree 100e, from the "before" removal
 treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", # define the file name
                           skip = 1, # skip reading the first row
                           header = TRUE, # define the second row as the header
-                          col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
 treatment_100e_before$blank1 <- NULL # Remove the blank columns
-treatment_100e_before$blank2 <- NULL # Remove the blank columns
+treatment_100e_before$sensor_sn <- rep(20439121) # add the sensor serial number
 treatment_100e_before$sensor_name <- rep("treatment_100e") # fill column with the sensor name
 treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
+
 
 # check the first 6 rows to see if the dataframe looks as we expect
 head(treatment_100e_before)
@@ -51,33 +58,108 @@ str(treatment_100e_before) # we will eventually want date to be formated as date
 treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv", # define the file name
                           skip = 1, # skip reading the first row
                           header = TRUE, # define the second row as the header
-                          col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
-sensor_100e_after$blank1 <- NULL # Remove the blank columns
-sensor_100e_after$blank2 <- NULL # Remove the blank columns
-sensor_100e_after$sensor_name <- rep("treatment_100e") # fill column with the sensor name
-sensor_100e_after$ash_removal <- rep("after_removal") # fill the column with the ash removal status
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+treatment_100e_after$blank1 <- NULL # Remove the blank columns
+treatment_100e_after$sensor_sn <- rep(20439121) # add the sensor serial number
+treatment_100e_after$sensor_name <- rep("treatment_100e") # fill column with the sensor name
+treatment_100e_after$ash_removal <- rep("after_removal") # fill the column with the ash removal status
 
 # check the first 6 rows to see if the dataframe looks as we expect
-head(sensor_100e_after)
+head(treatment_100e_after)
 
 # check the structure of how it is loaded
-str(sensor_100e_after) # we will eventually want date to be formated as date, but for now having number for te
+str(treatment_100e_after) # we will eventually want date to be formated as date
 
-# could create a loop to do this for all the files in the temp data folder
+```
+
+
+```{r step2-import-control-data-files}
+# open the first file of the treatment-tree 100e, from the "before" removal
+control_103_data <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+
+control_103_data$blank1 <- NULL # Remove the blank columns
+control_103_data$sensor_sn <- rep(20397886) # add the sensor serial number
+control_103_data$sensor_name <- rep("control_103") # fill column with the sensor name
+
+# format date/time
+control_103_data <- control_103_data %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+# assign "before" ash_removal categories
+control_103_data_before <- control_103_data %>% 
+  filter(date_time <= "2018-09-20 00:03:59") %>% 
+  mutate(ash_removal = "before_removal")
+
+# assign "after" ash_removal categories
+control_103_data_after <- control_103_data %>% 
+  filter(date_time >= "2018-09-20 12:21:00")
+
+# assign "during" ash_removal categories ( Deidre needs to fix this still!)
+control_103_data %>% 
+  filter(date_time >= "2018-09-20 00:04:00" | date_time <= "2018-09-20 12:20:59")
+
+```
+
+
+
+# could create a loop to do these cleaning steps for all the files in the temp data folder
 # dataframe names:
-treatment_100e_before
-treatment_100e_after 
+treatment_100e_before (example above)
+treatment_100e_after (example above)
 treatment_101w_before
 treatment_101w_after
-control_ash_before # will want to omit the times when the treatment sensors were off on Sept 20
-control_ash_after # will want to omit the times when the treatment sensors were off on Sept 20
-control_sun_before # will want to omit the times when the treatment sensors were off on Sept 20
-control_sun_after # will want to omit the times when the treatment sensors were off on Sept 20
+control_103_before 
+control_103_after 
+control_sun_before 
+control_sun_after 
 
+```{r step2-bind-into-1-csv}
 
+# aggregate the before and after dataframes for all sensor data into 1 dataframe (best practice for tidy analyses)
+
+# for example:
+treatment100e_data <- rbind(treatment_100e_before, treatment_100e_after)
 
 ```
  
+```{r step3-format-date-time}
+str(treatment100e_data) # check that starting class for date is "character"
+treatment100e_data <- treatment100e_data %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+str(treatment100e_data) # check that class structure changes to "POSIXct"
+```
+
+```{r step4-set-factors}
+
+# we want the sensor serial number, sensor name, and the ash removal status columns to be categorical factors, rather than text characters
+
+# for example:
+treatment100e_data <- treatment100e_data %>% 
+  mutate(sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
+
+str(treatment100e_data)
+```
+
+```{r step5-export-csv}
+# export this new dataframe as "ash-microclimate-data2018" so we don't have to rebuild it each time we want to work with it, or we can send it someone over email
+
+# for example: 
+treatment100e_data %>% 
+   write.csv(file="data/ash-microclimate-data2018.csv") # using pipes, write a new csv file saved at the defined filepath
+  
+```
+
+
+
+
+
+
+Example function code from my accelerometer data cleaning to modify for temp sensors
+
 ```{r-example-for-loop-data-loading}
 
 clean_up_raw_accel_csv <- function(files, output_path) {
@@ -137,23 +219,4 @@ main1_path = "/Users/deidrejaeger/Documents/Career/CU-Boulder/Research/BoulderPh
 clean_up_raw_accel_csv(main1_files, main1_path)
 ```
 
- 
- 
-```{r-bind-into-1-csv}
-
-# aggregate the before and after dataframes into 1 dataframe
-
-# for example:
-sensor_data <- rbind(sensor_100e_before, sensor_100e_after)
-
-
-```
- 
-```{r-format-date-time}
-
-as.date()
-
-```
- 
- 
  
