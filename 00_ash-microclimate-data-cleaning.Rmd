@@ -20,12 +20,54 @@ Data cleaning steps
  - each row is temperature measurement at a given minute
  
  
-```{r-import-data}
+```{r import-data}
 
 # import the data from each sensor
 
-dat86 <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", header = TRUE)
+# 100E BEFORE
 
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
+
+treatment_100e_before$blank1 <- NULL # Remove the blank columns
+treatment_100e_before$blank2 <- NULL # Remove the blank columns
+
+treatment_100e_before$sensor_name <- rep("treatment_100e") # fill column with the sensor name
+treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
+
+# remove empty rows
+treatment_100e_before <- treatment_100e_before[1:4325,]
+
+# check the first 6 rows to see if the dataframe looks as we expect
+head(treatment_100e_before)
+
+# check the structure of how it is loaded
+str(treatment_100e_before) # we will eventually want date to be formated as date, but for now having number for temp and character for sensor name look good
+
+#-----------------------------------------------------
+# 100E AFTER
+
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv", 
+                          skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) 
+
+treatment_100e_after$blank1 <- NULL 
+treatment_100e_after$blank2 <- NULL 
+
+treatment_100e_after$sensor_name <- rep("treatment_100e") 
+treatment_100e_after$ash_removal <- rep("after_removal") 
+
+# remove empty rows
+treatment_100e_after <- treatment_100e_after[1:5502,]
+
+# check the first 6 rows 
+head(treatment_100e_after)
+
+# check the structure 
+str(treatment_100e_after) 
 ```
  
  
