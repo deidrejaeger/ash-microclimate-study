@@ -5,69 +5,99 @@ date: "10/12/2018"
 output: html_document
 ---
 
-Data cleaning steps
-1) import the tree data csv file
-  - check that the classes are correct for numbers and factors
-  - import dates as.date
-2) import the sensor datafiles
- - check that the classes are correct for numbers and factors
- - import dates as.date
- 
-3) check if sensors were turned off during morning of day 3 (Sep 20)
- 
- 4) combine all data into 1 spreadsheet
- - column names ()
- - each row is temperature measurement at a given minute
- 
- 
-```{r import-data}
+```{r install-packages-library}
+install.packages("dplyr")
+install.packages("lubridate")
+library(dplyr) # mutate function
+library(lubridate) # as.POSIX function
+options(stringsAsFactors = FALSE) # makes dates strings
+```
 
-# import the data from each sensor
+```{r import-treatment-data}
+# treatment 100e before removal
+treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
 
-# 100E BEFORE
+treatment_100e_before$blank1 <- NULL
+treatment_100e_before$sensor_sn <- rep(20439121)
+treatment_100e_before$sensor_name <- rep("treatment_100e")
+treatment_100e_before$ash_removal <- rep("before_removal")
 
-# open the first file of the treatment-tree 100e, from the "before" removal
-treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", # define the file name
-                          skip = 1, # skip reading the first row
-                          header = TRUE, # define the second row as the header
-                          col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
-
-treatment_100e_before$blank1 <- NULL # Remove the blank columns
-treatment_100e_before$blank2 <- NULL # Remove the blank columns
-
-treatment_100e_before$sensor_name <- rep("treatment_100e") # fill column with the sensor name
-treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
-
-# remove empty rows
-treatment_100e_before <- treatment_100e_before[1:4325,]
-
-# check the first 6 rows to see if the dataframe looks as we expect
 head(treatment_100e_before)
 
-# check the structure of how it is loaded
-str(treatment_100e_before) # we will eventually want date to be formated as date, but for now having number for temp and character for sensor name look good
+str(treatment_100e_before)
 
-#-----------------------------------------------------
-# 100E AFTER
+#############
 
-# open the first file of the treatment-tree 100e, from the "before" removal
-treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv", 
-                          skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) 
+# treatment 100e after removal
+treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
 
-treatment_100e_after$blank1 <- NULL 
-treatment_100e_after$blank2 <- NULL 
+treatment_100e_after$blank1 <- NULL
+treatment_100e_after$sensor_sn <- rep(20439121)
+treatment_100e_after$sensor_name <- rep("treatment_100e")
+treatment_100e_after$ash_removal <- rep("after_removal")
 
-treatment_100e_after$sensor_name <- rep("treatment_100e") 
-treatment_100e_after$ash_removal <- rep("after_removal") 
-
-# remove empty rows
-treatment_100e_after <- treatment_100e_after[1:5502,]
-
-# check the first 6 rows 
 head(treatment_100e_after)
 
-# check the structure 
-str(treatment_100e_after) 
+str(treatment_100e_after)  
 ```
- 
- 
+
+```{r}
+# treatment 101w before removal
+treatment_101w_before <- read.csv("data/SN 20439119 2018-09-20 00_07_03 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
+
+treatment_101w_before$blank1 <- NULL
+treatment_101w_before$sensor_sn <- rep(20439119)
+treatment_101w_before$sensor_name <- rep("treatment_101w")
+treatment_101w_before$ash_removal <- rep("before_removal")
+
+head(treatment_101w_before)
+
+str(treatment_101w_before)
+
+#############
+
+# treatment 101w after removal
+treatment_101w_after <- read.csv("data/SN 20439119 2018-09-26 10_22_57 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
+
+treatment_101w_after$blank1 <- NULL
+treatment_101w_after$sensor_sn <- rep(20439119)
+treatment_101w_after$sensor_name <- rep("treatment_101we")
+treatment_101w_after$ash_removal <- rep("after_removal")
+
+head(treatment_101w_after)
+
+str(treatment_101w_after) 
+```
+
+
+```{r import-control-data}
+control_103_data <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
+
+control_103_data$blank1 <- NULL
+control_103_data$sensor_sn <- rep(20397886)
+control_103_data$sensor_name <- rep("control_103")
+str(control_103_data)
+
+control_103_data <- control_103_data %>% mutate(date_time = ymd_hms(date_time))
+control_103_data_before <- control_103_data %>% filter(date_time <= "2018-09-20 00:03:59") %>% mutate(ash_removal = "before_removal") 
+control_103_data_after <- control_103_data %>% filter(date_time <= "2018-09-20 12:21:00")
+control_103_data %>% filter(date_time >= "2018-09-20 00:04:00" | date_time <= "2018-09-20 12:20:59") # still needs to be fixed!!!!! #########################
+                                                     
+```
+
+```{r import-control-data}
+control_103_data <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
+
+control_103_data$blank1 <- NULL
+control_103_data$sensor_sn <- rep(20397886)
+control_103_data$sensor_name <- rep("control_103")
+
+control_103_data <- control_103_data %>% mutate(date_time = ymd_hms(date_time))
+control_103_data_before <- control_103_data %>% filter(date_time <= "2018-09-20 00:03:59") %>% mutate(ash_removal = "before_removal") 
+control_103_data_after <- control_103_data %>% filter(date_time <= "2018-09-20 12:21:00")
+control_103_data %>% filter(date_time >= "2018-09-20 00:04:00" | date_time <= "2018-09-20 12:20:59") # still needs to be fixed!!!!! #########################
+                                                     
+```
+
+
+
