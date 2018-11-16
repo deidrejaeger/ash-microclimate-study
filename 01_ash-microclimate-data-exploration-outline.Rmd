@@ -2,23 +2,31 @@
 title: "ash-microclimate-data-exploration"
 author: "Deidre Jaeger"
 date: "10/25/2018"
-output: html_document
+output: github_document
 ---
 
-Data Exploration Steps
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+
+```
+
+
+## Exploratory Data Analysis
+
 *Step 1:* load data and make sure it has correct date, number, and factor classes
-*Step 2:* view the histograms of before and after treatments
+
+*Step 2:* view the histograms to see the distribution of temperatures of before and after treatments
+ -are there any erroneous measurements?
+ 
+*Step 3:* time series plot for each of the 4 sensors (x-axis = time, y axis = temperature F)
+
+*Step 4:* average the two ash treatment replicates
+
+*Step 5:* combined time series plots for all 3 groups (treatment-tree, control-tree, control-sun)
 
 
-1. histogram of the temperature measurements of each sensor (x axis = sensor #, y axis = freq)
-   - are there any erroneous measurement?
-2. time series plot for each of the 4 sensors (x-axis = time, y axis = temperature F)
-3. combined time series plots for all 4 sensors
-
-3) check if sensors were turned off during morning of day 3 (Sep 20)
-  - omit the times when the treatment sensors were off on Sept 20
   
-```{r load-libraries}
+```{r load-libraries, echo=FALSE}
 library(dplyr) # for mutate() functionality
 library(lubridate) # for as.POSIX function
 library(ggplot2)
@@ -26,12 +34,14 @@ options(stringsAsFactors = FALSE) # so that dates read in as character strings n
 
 ```
   
-```{r load-data}
+```{r load-data, echo=FALSE}
 
 # read csv file
 ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T) 
 
-# check structure
+# check structure and make sure every column and row we expect to be there is present
+head(ash_data)
+unique(ash_data$sensor_name)
 str(ash_data) # darn, we dont have the factors and date formatted anymore
 
 # reset date and factors
@@ -52,14 +62,31 @@ ash_data %>% # define date
 
 ```
 
-```{r view-time-series-by-sensor}
+```{r view-time-series-scatterplot}
 
-ash_data %>% 
+ash_data %>%
+  filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
+  group_by(ash_removal) %>% 
   ggplot() +
   geom_point(mapping = aes(x = date_time, y = tempF,
                            color = ash_removal)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59")) +
   facet_wrap( facets = ~ sensor_name)
 
+```
+
+```{r view-time-series-lineplot}
+
+ash_data %>%
+  filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
+  group_by(ash_removal) %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+                           color = ash_removal)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59")) +
+  facet_wrap( facets = ~ sensor_name)
 
 ```
 
