@@ -75,7 +75,7 @@ ash_data %>%
 
 ```
 
-```{r step4-view-time-series-lineplot}
+```{r step3-view-time-series-lineplot}
 
 ash_data %>%
   filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
@@ -90,4 +90,7 @@ ash_data %>%
 ```
 
 
+```{r step4-overlayed-lineplots}
+
+```
 
