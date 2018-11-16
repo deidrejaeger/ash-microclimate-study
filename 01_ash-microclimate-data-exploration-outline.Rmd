@@ -20,11 +20,10 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE)
  
 *Step 3:* time series plot for each of the 4 sensors (x-axis = time, y axis = temperature F)
 
-*Step 4:* average the two ash treatment replicates
+*Step 4:* combined time series plots for all 3 groups (treatment-tree, control-tree, control-sun), 1 for each treatment
 
-*Step 5:* combined time series plots for all 3 groups (treatment-tree, control-tree, control-sun)
-
-
+*Further analysis- still in progress*
+consider average the two ash treatment replicates?
   
 ```{r load-libraries, echo=FALSE}
 library(dplyr) # for mutate() functionality
@@ -34,7 +33,7 @@ options(stringsAsFactors = FALSE) # so that dates read in as character strings n
 
 ```
   
-```{r load-data, echo=FALSE}
+```{r step1-load-data, echo=FALSE}
 
 # read csv file
 ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T) 
@@ -53,7 +52,7 @@ str(ash_data)
 
 ```
 
-```{r view-histograms-by-sensor}
+```{r step2-view-histograms-by-sensor}
 
 ash_data %>% # define date
   ggplot() +
@@ -62,7 +61,7 @@ ash_data %>% # define date
 
 ```
 
-```{r view-time-series-scatterplot}
+```{r step3-view-time-series-scatterplot}
 
 ash_data %>%
   filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
@@ -76,7 +75,7 @@ ash_data %>%
 
 ```
 
-```{r view-time-series-lineplot}
+```{r step4-view-time-series-lineplot}
 
 ash_data %>%
   filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
