@@ -5,20 +5,22 @@ date: "10/12/2018"
 output: html_document
 ---
 
-Reproducible data cleaning steps
+Get that data Tidy!
 
 *Step 1:* import the treatment sensor datafiles
   - upon import: skip the header rows, rename columns
   - assign sensor label and ash removal status
-  - check that date and temp classes are correct: date_time: chr, tempF: num
+  - format the date and time in R friendly POSIXct format
 *Step 2:* import the control sensor datafiles
+  - upon import: skip the header rows, rename columns
+  - format the date and time in R friendly POSIXct format
+  - assign sensor label and ash removal status
 
 *Step 3:* bind all the csvs from each sensor into 1 single dataframe
    - each row is temperature measurement at a given second at a given location spanning the entire study          period (Sept 18 to Sept 22, 2018)
-*Step 4:* format the date and time in R friendly POSIXct format
-*Step 5:* set factors for categorical name and serial number of sensors and ash removal status
-*Step 6:* export a new csv with the cleaned data
-*Step 7:* fill in a textfile called "readme-boulder-ash-data2018" with the metadata about the sensor data
+*Step 4:* set factors for categorical name and serial number of sensors and ash removal status
+*Step 5:* export a new csv with the cleaned data
+*Step 6:* fill in a textfile called "readme-boulder-ash-data2018" with the metadata about the sensor data
             - include: data about each of the trees and locations, the types of sensors used, the type of radiation shield used, the height placed from the ground
 
 
@@ -39,18 +41,10 @@ options(stringsAsFactors = FALSE) # so that dates read in as character strings n
 treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", # define the file name
                           skip = 1, # skip reading the first row
                           header = TRUE, # define the second row as the header
-<<<<<<< HEAD
                           col.names = c("date_time", "tempF", "sensor_name", "ash_removal", "blank1",  "blank2")) # rename the columns
 
-
-treatment_100e_before$blank1 <- NULL # Remove the blank columns
-treatment_100e_before$blank2 <- NULL # Remove the blank columns
-
-=======
-                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
 treatment_100e_before$blank1 <- NULL # Remove the blank columns
 treatment_100e_before$sensor_sn <- rep(20439121) # add the sensor serial number
->>>>>>> 383df3b4ed43f6ce53fdedb66f7e8b057ef85d44
 treatment_100e_before$sensor_name <- rep("treatment_100e") # fill column with the sensor name
 treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
 
@@ -76,8 +70,17 @@ treatment_100e_after$ash_removal <- rep("after_removal") # fill the column with 
 # check the first 6 rows to see if the dataframe looks as we expect
 head(treatment_100e_after)
 
+# combine the before and after treatment into 1 dateframe
+treatment_100e_clean <- rbind(treatment_100e_before, treatment_100e_after)
+
 # check the structure of how it is loaded
-str(treatment_100e_after) # we will eventually want date to be formated as date
+str(treatment_100e_clean) # we will eventually want date to be formated as date
+
+# format 
+treatment_100e_clean <- treatment_100e_clean %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+str(treatment_100e_clean) # check that class structure changes to "POSIXct"
 
 ```
 
@@ -99,17 +102,25 @@ control_103_data <- control_103_data %>%
 
 # assign "before" ash_removal categories
 control_103_data_before <- control_103_data %>% 
-  filter(date_time <= "2018-09-20 00:03:59") %>% 
+  filter(date_time <= ymd_hms("2018-09-20 00:03:59")) %>% 
   mutate(ash_removal = "before_removal")
+
+# assign "during" ash_removal categories ( Deidre needs to fix this still!)
+control_103_data_during <- control_103_data %>% 
+  filter((date_time >= ymd_hms("2018-09-20 00:04:00")) & (date_time <= ymd_hms("2018-09-20 12:20:59"))) %>% 
+  mutate(ash_removal = "during_removal")
 
 # assign "after" ash_removal categories
 control_103_data_after <- control_103_data %>% 
-  filter(date_time >= "2018-09-20 12:21:00")
+  filter(date_time >= ymd_hms("2018-09-20 12:21:00")) %>% 
+  mutate(ash_removal = "after_removal")
 
-# assign "during" ash_removal categories ( Deidre needs to fix this still!)
-control_103_data %>% 
-  filter(date_time >= "2018-09-20 00:04:00" | date_time <= "2018-09-20 12:20:59")
+# zip back up into 1 dataframe
+control_103_data_clean <- rbind(control_103_data_before, control_103_data_during, control_103_data_after)
 
+# check that all rows were assigned an ash removal status
+unique(control_103_data_clean$ash_removal)# Yay! There are no NA's meaning we captured all the rows
+nrow(control_103_data) == nrow(control_103_data_clean) # and we didn't lose any rows!
 ```
 
 
@@ -125,39 +136,41 @@ control_103_after
 control_sun_before 
 control_sun_after 
 
-```{r step2-bind-into-1-csv}
+```{r step3-bind-into-1-csv}
 
 # aggregate the before and after dataframes for all sensor data into 1 dataframe (best practice for tidy analyses)
 
 # for example:
-treatment100e_data <- rbind(treatment_100e_before, treatment_100e_after)
+all_data <- rbind(treatment_100e_clean, control_103_data_clean)
 
 ```
  
-```{r step3-format-date-time}
-str(treatment100e_data) # check that starting class for date is "character"
-treatment100e_data <- treatment100e_data %>% 
-  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
-
-str(treatment100e_data) # check that class structure changes to "POSIXct"
-```
-
-```{r step4-set-factors}
-
+```{r step4-format-date-time}
 # we want the sensor serial number, sensor name, and the ash removal status columns to be categorical factors, rather than text characters
 
 # for example:
-treatment100e_data <- treatment100e_data %>% 
+all_data <- all_data %>% 
   mutate(sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
 
-str(treatment100e_data)
+str(all_data) # check that it worked
 ```
 
-```{r step5-export-csv}
+```{r step5-set-factors}
+
+# check for NAs in dataset
+all_data %>% 
+  filter(is.na(tempF)) # seven rows don't have a temp value
+
+# remove the rows that have NA temperature values with (! is a boolean operator and means "is not equal to"
+all_data <- all_data %>% 
+  filter(!is.na(tempF))
+```
+
+```{r step6-export-csv}
 # export this new dataframe as "ash-microclimate-data2018" so we don't have to rebuild it each time we want to work with it, or we can send it someone over email
 
 # for example: 
-treatment100e_data %>% 
+all_data %>% 
    write.csv(file="data/ash-microclimate-data2018.csv") # using pipes, write a new csv file saved at the defined filepath
   
 ```
