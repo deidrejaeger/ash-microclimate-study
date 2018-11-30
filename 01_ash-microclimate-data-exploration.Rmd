@@ -2,10 +2,12 @@
 title: "ash-microclimate-data-exploration"
 author: "Deidre Jaeger"
 date: "10/25/2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r global-options, include = FALSE}
+```{r global-options, echo = FALSE, include = FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
@@ -13,17 +15,16 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
-options(stringsAsFactors = FALSE) # what are strings and factors
+options(stringsAsFactors = FALSE) 
 ```
 
 ```{r load-data, echo = FALSE}
 ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T)
-# ash_data$ash_removal$during_removal <- NULL
 
 # checking structure
 head(ash_data)
 unique(ash_data$sensor_name)
-str(ash_data) # how do you know the factors and date arent formatted anymore? 
+str(ash_data) 
 
 # formatting
 ash_data <- ash_data %>% mutate(date_time = ymd_hms(date_time), sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
@@ -31,12 +32,18 @@ ash_data <- ash_data %>% mutate(date_time = ymd_hms(date_time), sensor_sn = as.f
 str(ash_data)
 ```
 
-```{r histograms-by-sensor}
+```{r histograms-by-sensor, echo = FALSE}
 ash_data %>% ggplot() + geom_histogram(mapping = aes(x = tempF), bins = 40) + facet_grid(facets = sensor_name ~ ash_removal)
-# how do i tell if there are erroneous measurements?
 ```
 
-```{r time-series-scatterplot}
+make a histogram with before and after data, separated by sensor (basically a histogram of the last plot)
+
+```{r overlapping-histograms, echo = FALSE}
+ggplot(data = ash_data) +
+  geom_histogram(mapping = aes(x = tempF, y = stat(density), fill = ash_removal), position = "identity", bins = 36, alpha = 0.6)
+```
+
+```{r time-series-scatterplot, echo = FALSE}
 ash_data %>% filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% group_by(ash_removal) %>% 
   ggplot() + 
   geom_point(mapping = aes(x = date_time, y = tempF, color = ash_removal)) + 
@@ -44,35 +51,30 @@ ash_data %>% filter(ash_removal == "before_removal" | ash_removal == "after_remo
   geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) + 
   facet_wrap(facets = ~ sensor_name)
 ```
-```{r time-series-lineplot}
+
+```{r time-series-lineplot, echo = FALSE}
 ash_data %>% filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% group_by(ash_removal) %>% 
   ggplot() + 
   geom_line(mapping = aes(x = date_time, y = tempF, color = ash_removal)) + 
   geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
   geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) + 
   facet_wrap(facets = ~ sensor_name)
-head(ash_data)
-str(ash_data)
 ```
 
-```{r overlay-line-plots}
-ash_data %>% filter(sensor_name == "treatment_100e" | sensor_name == "treatment_101w" | sensor_name == "control_103" | sensor_name == "control_sun") %>%
-  group_by(sensor_name) %>% 
+```{r overlay-line-plots, echo = FALSE}
+ash_data %>% filter(ash_removal != "during_removal") %>%
+  group_by(ash_removal) %>% 
   ggplot() + 
   geom_line(mapping = aes(x = date_time, y = tempF, color = sensor_name)) + 
   geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
-  geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) +
-  facet_wrap(facets = ~ "before_removal") 
-# i couldnt figure out how to remove the data between the two vertical lines
+  geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) 
 ```
 
-```{r overlay-line-plots-2}
-ash_data %>% filter(sensor_name == "treatment_100e" | sensor_name == "treatment_101w" | sensor_name == "control_103" | sensor_name == "control_sun") %>%
-  group_by(sensor_name) %>%
+```{r overlay-line-plots-2, echo = FALSE}
+ash_data %>% filter(ash_removal != "during_removal") %>% #try filtering out dates with no data
+  group_by(ash_removal) %>%
   ggplot() +
   geom_line(mapping = aes(x = date_time, y = tempF, color = sensor_name)) +
-  facet_wrap(facets = ~ ash_removal)
-# im really confused, cause it appears as though the data is showing higher temps with trees in tact, rather than once they were removed. 
-# i couldnt figure out how to remove the 'during' section
+  facet_wrap(facets = ~ ash_removal) #check facet_wrap help for how to order the facets
 ```
 

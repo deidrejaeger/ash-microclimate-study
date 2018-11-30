@@ -1,0 +1,14 @@
+---
+title: "02_ash-microclimate-data-analysis"
+author: "Deidre Jaeger"
+date: "11/29/2018"
+output: pdf_document
+---
+
+## Analysis Plan
+
+*Step 1:* Calculate the difference in temp between the treatments and controls for the study duration
+
+*Step 2:* Run a paired t-test between the hourly averaged differences in temperature before ash removal and after 
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in temperature in the before and after treatments. 

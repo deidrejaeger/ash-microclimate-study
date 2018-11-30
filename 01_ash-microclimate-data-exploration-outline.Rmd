@@ -1,0 +1,103 @@
+---
+title: "ash-microclimate-data-exploration"
+author: "Deidre Jaeger"
+date: "10/25/2018"
+output: github_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+
+```
+
+
+## Exploratory Data Analysis
+
+### new addition: add overlaping histograms to Step 2
+
+ggplot(data=ash_data) +
+    geom_histogram(mapping = aes(x=tempF,y=stat(density),fill=ash_removal),
+                   position="identity",bins=36,alpha=0.6) 
+
+
+*Step 1:* load data and make sure it has correct date, number, and factor classes
+
+*Step 2:* view the histograms to see the distribution of temperatures of before and after treatments
+ -are there any erroneous measurements? 
+ 
+*Step 3:* time series plot for each of the 4 sensors (x-axis = time, y axis = temperature F)
+
+*Step 4:* combined time series plots for all 3 groups (treatment-tree, control-tree, control-sun), 1 for each treatment
+
+*Further analysis- still in progress*
+consider average the two ash treatment replicates?
+  
+```{r load-libraries, echo=FALSE}
+library(dplyr) # for mutate() functionality
+library(lubridate) # for as.POSIX function
+library(ggplot2)
+options(stringsAsFactors = FALSE) # so that dates read in as character strings not factors (factors are troublesome for converting to dates)
+
+```
+  
+```{r step1-load-data, echo=FALSE}
+
+# read csv file
+ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T) 
+
+# check structure and make sure every column and row we expect to be there is present
+head(ash_data)
+unique(ash_data$sensor_name)
+str(ash_data) # darn, we dont have the factors and date formatted anymore
+
+# reset date and factors
+ash_data <- ash_data %>% 
+  mutate(date_time = ymd_hms(date_time), sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
+
+# recheck structure to make sure date=POSIXct, tempF = num, and everything else is a factor- except we don't care about the "X" factor
+str(ash_data) 
+
+```
+
+```{r step2-view-histograms-by-sensor}
+
+ash_data %>% # define date
+  ggplot() +
+  geom_histogram(mapping = aes(x= tempF), bins = 40) + # define x axis
+  facet_grid(facets = sensor_name ~ ash_removal) # define which variables to panel vertical and horizontal graphs with
+
+```
+
+```{r step3-view-time-series-scatterplot}
+
+ash_data %>%
+  filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
+  group_by(ash_removal) %>% 
+  ggplot() +
+  geom_point(mapping = aes(x = date_time, y = tempF,
+                           color = ash_removal)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59")) +
+  facet_wrap( facets = ~ sensor_name)
+
+```
+
+```{r step3-view-time-series-lineplot}
+
+ash_data %>%
+  filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
+  group_by(ash_removal) %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+                           color = ash_removal)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59")) +
+  facet_wrap( facets = ~ sensor_name)
+
+```
+
+
+```{r step4-overlayed-lineplots}
+
+```
+

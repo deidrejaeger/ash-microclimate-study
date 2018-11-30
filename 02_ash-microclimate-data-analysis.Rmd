@@ -1,0 +1,43 @@
+---
+title: "02_ash_microclimate_data_analysis"
+author: "Amanda Looze"
+date: "November 30, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-libraries-and-data, echo = FALSE}
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+options(stringsAsFactors = FALSE)
+
+ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T)
+head(ash_data)
+unique(ash_data$sensor_name)
+str(ash_data)
+
+ash_data <- ash_data %>% mutate(date_time = ymd_hms(date_time), sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
+
+str(ash_data)
+```
+*Step 1:* Calculate the difference in temp between the treatments and controls for the study duration #new dataframe or new columns to current dataframe
+```{r calc-diff-temps}
+ash_data %>% filter()
+
+```
+
+*Step 2:* Run a paired t-test between the hourly averaged differences in temperature before ash removal and after 
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in temperature in the before and after treatments. 
+```{r cars}
+summary(cars)
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
