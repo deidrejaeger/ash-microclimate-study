@@ -13,10 +13,17 @@ knitr::opts_chunk$set(warning=FALSE, message=FALSE)
 
 ## Exploratory Data Analysis
 
+### new addition: add overlaping histograms to Step 2
+
+ggplot(data=ash_data) +
+    geom_histogram(mapping = aes(x=tempF,y=stat(density),fill=ash_removal),
+                   position="identity",bins=36,alpha=0.6) 
+
+
 *Step 1:* load data and make sure it has correct date, number, and factor classes
 
 *Step 2:* view the histograms to see the distribution of temperatures of before and after treatments
- -are there any erroneous measurements?
+ -are there any erroneous measurements? 
  
 *Step 3:* time series plot for each of the 4 sensors (x-axis = time, y axis = temperature F)
 
