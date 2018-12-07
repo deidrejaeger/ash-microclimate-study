@@ -15,19 +15,29 @@ library(lubridate)
 library(ggplot2)
 options(stringsAsFactors = FALSE)
 
-ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T)
-head(ash_data)
-unique(ash_data$sensor_name)
-str(ash_data)
-
-ash_data <- ash_data %>% mutate(date_time = ymd_hms(date_time), sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
-
-str(ash_data)
+treatment_100e_clean <- read.csv("data/treatment_100e_clean.csv", header = T)
+treatment_101w_clean <- read.csv("data/treatment_101w_clean.csv", header = T)
+control_sun_data_clean <- read.csv("data/control_sun_data_clean.csv", header = T)
+control_sun_data_clean <- control_sun_data_clean %>% filter(ash_removal != "during_removal")
+control_103_data_clean <- read.csv("data/control_103_data_clean.csv", header = T)
+control_103_data_clean <- control_103_data_clean %>% filter(ash_removal != "during_removal")
 ```
-*Step 1:* Calculate the difference in temp between the treatments and controls for the study duration #new dataframe or new columns to current dataframe
+*Step 1:* Calculate the difference in temp between the treatments and controls for the study duration 
+##new dataframe or new columns to current dataframe
 ```{r calc-diff-temps}
-ash_data %>% filter()
+t100e_diff <- data.frame(cbind(treatment_100e_clean$tempF, control_sun_data_clean$tempF, control_103_data_clean$tempF))
+colnames(t100e_diff) <- c("t100e", "csun", "c103")
 
+t100e_diff$diff_100e_sun <- t100e_diff$csun - t100e_diff$t100e
+t100e_diff$diff_100e_103 <- t100e_diff$c103 - t100e_diff$t100e
+
+##############################################################################
+
+t101w_diff <- data.frame(cbind(treatment_101w_clean$tempF, control_sun_data_clean$tempF, control_103_data_clean$tempF))
+colnames(t101w_diff) <- c("t101w", "csun", "c103")
+
+t101w_diff$diff_101w_sun <- t101w_diff$csun - t101w_diff$t101w
+t101w_diff$diff_101w_103 <- t101w_diff$c103 - t101w_diff$t101w
 ```
 
 *Step 2:* Run a paired t-test between the hourly averaged differences in temperature before ash removal and after 
