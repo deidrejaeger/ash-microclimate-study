@@ -24,12 +24,17 @@ control_103_data_clean <- control_103_data_clean %>% filter(ash_removal != "duri
 ```
 *Step 1:* Calculate the difference in temp between the treatments and controls for the study duration 
 ##new dataframe or new columns to current dataframe
-```{r calc-diff-temps}
-t100e_diff <- data.frame(cbind(treatment_100e_clean$tempF, control_sun_data_clean$tempF, control_103_data_clean$tempF))
-colnames(t100e_diff) <- c("t100e", "csun", "c103")
+```{r calc-diff-temps, echo = FALSE}
+t100e_diff <- data.frame(cbind(treatment_100e_clean$tempF, treatment_100e_clean$ash_removal, control_sun_data_clean$tempF, control_sun_data_clean$ash_removal, control_103_data_clean$tempF, control_103_data_clean$ash_removal))
 
-t100e_diff$diff_100e_sun <- t100e_diff$csun - t100e_diff$t100e
-t100e_diff$diff_100e_103 <- t100e_diff$c103 - t100e_diff$t100e
+colnames(t100e_diff) <- c("t100e_tempF", "ash_removal", "csun_tempF", "ash_removal", "c103_tempF", "ash_removal")
+
+t100e_diff$t100e_tempF <- as.numeric(t100e_diff$t100e_tempF)
+t100e_diff$csun_tempF <- as.numeric(t100e_diff$csun_tempF)
+t100e_diff$c103_tempF <- as.numeric(t100e_diff$c103_tempF)
+
+t100e_diff$diff_100e_sun <- t100e_diff$csun_tempF - t100e_diff$t100e_tempF
+t100e_diff$diff_100e_103 <- t100e_diff$c103_tempF - t100e_diff$t100e_tempF
 
 ##############################################################################
 
@@ -41,13 +46,15 @@ t101w_diff$diff_101w_103 <- t101w_diff$c103 - t101w_diff$t101w
 ```
 
 *Step 2:* Run a paired t-test between the hourly averaged differences in temperature before ash removal and after 
+```{r t-test}
+t.test(t100e_diff$diff_100e_sun ~ t100e_diff$ash_removal)
 
-*Step 3:* Make a barplot or boxplot to show the average difference and st error in temperature in the before and after treatments. 
-```{r cars}
-summary(cars)
+# figure out why the data is screwy at the bottom of ash _removal
+# use only one column for ash_removal or specify different names for each one
 ```
 
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in temperature in the before and after treatments. 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+
 ```
 
