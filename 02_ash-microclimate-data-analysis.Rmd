@@ -9,52 +9,184 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r load-libraries-and-data, echo = FALSE}
+```{r load-libraries, echo = FALSE}
 library(dplyr)
 library(lubridate)
 library(ggplot2)
+library(tidyr)
 options(stringsAsFactors = FALSE)
-
-treatment_100e_clean <- read.csv("data/treatment_100e_clean.csv", header = T)
-treatment_101w_clean <- read.csv("data/treatment_101w_clean.csv", header = T)
-control_sun_data_clean <- read.csv("data/control_sun_data_clean.csv", header = T)
-control_sun_data_clean <- control_sun_data_clean %>% filter(ash_removal != "during_removal")
-control_103_data_clean <- read.csv("data/control_103_data_clean.csv", header = T)
-control_103_data_clean <- control_103_data_clean %>% filter(ash_removal != "during_removal")
 ```
+
+```{r load-data, echo = FALSE}
+ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T)
+```
+
 *Step 1:* Calculate the difference in temp between the treatments and controls for the study duration 
-##new dataframe or new columns to current dataframe
-```{r calc-diff-temps, echo = FALSE}
-t100e_diff <- data.frame(cbind(treatment_100e_clean$tempF, treatment_100e_clean$ash_removal, control_sun_data_clean$tempF, control_sun_data_clean$ash_removal, control_103_data_clean$tempF, control_103_data_clean$ash_removal))
+```{r temp-treatment-control-diffs, echo = FALSE}
+ash_data2 <- ash_data %>% filter(ash_removal != "during_removal")
 
-colnames(t100e_diff) <- c("t100e_tempF", "ash_removal", "csun_tempF", "ash_removal", "c103_tempF", "ash_removal")
+unique(ash_data2$ash_removal)
 
-t100e_diff$t100e_tempF <- as.numeric(t100e_diff$t100e_tempF)
-t100e_diff$csun_tempF <- as.numeric(t100e_diff$csun_tempF)
-t100e_diff$c103_tempF <- as.numeric(t100e_diff$c103_tempF)
+# ash_data2 %>%
+#   filter(sensor_name == "control_sun" | sensor_name == "treatment_tree_100e") %>%
+#   spread(sensor_name, tempF)
 
-t100e_diff$diff_100e_sun <- t100e_diff$csun_tempF - t100e_diff$t100e_tempF
-t100e_diff$diff_100e_103 <- t100e_diff$c103_tempF - t100e_diff$t100e_tempF
+tt_100e_before <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_100e", ash_removal == "before_removal")
 
-##############################################################################
+tt_101w_before <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_101w", ash_removal == "before_removal")
 
-t101w_diff <- data.frame(cbind(treatment_101w_clean$tempF, control_sun_data_clean$tempF, control_103_data_clean$tempF))
-colnames(t101w_diff) <- c("t101w", "csun", "c103")
+c_sun_before <- ash_data2 %>% 
+  filter(sensor_name == "control_sun", ash_removal == "before_removal")
 
-t101w_diff$diff_101w_sun <- t101w_diff$csun - t101w_diff$t101w
-t101w_diff$diff_101w_103 <- t101w_diff$c103 - t101w_diff$t101w
+c_103_before <- ash_data2 %>% 
+  filter(sensor_name == "control_tree_103", ash_removal == "before_removal")
+
+#################
+
+ash_data3_before <- tt_100e_before %>% 
+  inner_join(tt_101w_before, by = "date_time") %>% 
+  inner_join(c_sun_before, by = "date_time") %>% 
+  inner_join(c_103_before, by = "date_time") %>% 
+  rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>% 
+  select(date_time, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% 
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), 
+         diff_sun_101w = (tempF.sun-tempF.101w), 
+         diff_sun_103 = (tempF.sun-tempF.103), 
+         diff_103_100e = (tempF.103-tempF.100e), 
+         diff_103_101w = (tempF.103-tempF.101w), 
+         diff_100e_101w = (tempF.100e-tempF.101w))
+
+head(ash_data3_before)
+
+tt_100e_after <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_100e", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+tt_101w_after <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_101w", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+c_sun_after <- ash_data2 %>% 
+  filter(sensor_name == "control_sun", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+c_103_after <- ash_data2 %>% 
+  filter(sensor_name == "control_tree_103", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+ash_data3_after <- tt_100e_after %>% 
+  inner_join(tt_101w_after, by = "date_time2") %>% 
+  inner_join(c_sun_after, by = "date_time2") %>% 
+  inner_join(c_103_after, by = "date_time2") %>% 
+  rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>%
+  select(date_time2, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% 
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), 
+         diff_sun_101w = (tempF.sun-tempF.101w), 
+         diff_sun_103 = (tempF.sun-tempF.103), 
+         diff_103_100e = (tempF.103-tempF.100e), 
+         diff_103_101w = (tempF.103-tempF.101w), 
+         diff_100e_101w = (tempF.100e-tempF.101w))
+
+head(ash_data3_after)
 ```
 
-*Step 2:* Run a paired t-test between the hourly averaged differences in temperature before ash removal and after 
-```{r t-test}
-t.test(t100e_diff$diff_100e_sun ~ t100e_diff$ash_removal)
+*Step 2.1:*  1) calculate some summary statistics
+            - for each treatment pair
+               a) what is the max temp difference, at what time of the day
+               b) what is the min temp diff, at what time of day?
+               c) save to a table #as.table()
+              
+          ###2) show some summary graphs #
+              a) plot histograms of the difference values between treatments (using ggplot facet)
+```{r summary-stats, echo=FALSE}
+max_before <- max(ash_data3_before[1:4325,7])
 
-# figure out why the data is screwy at the bottom of ash _removal
-# use only one column for ash_removal or specify different names for each one
+max <- as.table(ash_data3_before$date_time, max_before)
 ```
 
-*Step 3:* Make a barplot or boxplot to show the average difference and st error in temperature in the before and after treatments. 
-```{r pressure, echo=FALSE}
+*Step 2.2:* Run overall value t-tests between the hourly averaged differences in temperature before ash removal and after 
+```{r t-test, echo = FALSE}
+ash_data3_before[4326:5497, ] <- NA
 
+t_sun_100e <- t.test(ash_data3_after$diff_sun_100e, 
+                    ash_data3_before$diff_sun_100e, paired = TRUE)
+
+t_sun_100e$p.value
+
+#########
+
+t_sun_101w <- t.test(ash_data3_after$diff_sun_101w, 
+                    ash_data3_before$diff_sun_101w, paired = TRUE)
+
+t_sun_101w$p.value
+
+#########
+
+t_sun_103 <- t.test(ash_data3_after$diff_sun_103, 
+                    ash_data3_before$diff_sun_103, paired = TRUE)
+
+t_sun_103$p.value
+
+#########
+
+t_103_100e <- t.test(ash_data3_after$diff_103_100e, 
+                    ash_data3_before$diff_103_100e, paired = TRUE)
+
+t_103_100e$p.value
+
+#########
+
+t_103_101w <- t.test(ash_data3_after$diff_103_101w, 
+                    ash_data3_before$diff_103_101w, paired = TRUE)
+
+t_103_101w$p.value
+
+#########
+
+t_100e_101w <- t.test(ash_data3_after$diff_100e_101w, 
+                    ash_data3_before$diff_100e_101w, paired = TRUE)
+
+t_100e_101w$p.value
+```
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments. 
+```{r bar-plot-avg-diffs, echo=FALSE}
+
+ash_data3_before %>% filter(ash_data3_before$date_time >= "2018-09-17 00:00:59" | ash_data3_before$date_time < "2018-09-17 01:00:59") %>% summarize(avg = mean(ash_data3_before))
+
+plot(avg)
+
+
+# ggplot(data = stom_spec, mapping = aes(x = species, y = stomata_density)) +
+#   geom_bar(stat = "identity", color = area.color, fill = area.color) + 
+#   geom_errorbar(aes(ymin = SE_lower, ymax = SE_upper), width = 0.4) + 
+#   geom_text(aes(x = species, y = SE_upper+.4, label = letters), size = 5)+
+#   ylab("Stomata Density (1/mm^2)") +
+#   xlab("Species") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+*Step 4:* ###Make a line plot of the differences in temperature in the before and after treatments 
+    - may need to change "date_time" to day 1, 2, 3 so able to fully overlay values
+```{r line-plot-diffs, echo = FALSE}
+ash_data3_after2 <- ash_data3_after %>% 
+  rename(date_time = date_time2)
+
+ 
+
+#c("date_time", "ash_removal.x", "tempF.100e", "tempF.101w", "tempF.sun", "tempF.103", "diff_sun_100e", "diff_sun_101w", "diff_sun_103", "diff_103_100e", "diff_103_101w", "diff_100e_101w")
+
+
+ash_data3 <- rbind(ash_data3_before, ash_data3_after2)
+
+
+ash_data3 %>%
+  group_by(ash_removal) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF, color = sensor_name)) +
+  facet_wrap(facets = ~ ash_removal)
 ```
 

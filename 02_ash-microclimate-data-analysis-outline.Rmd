@@ -9,6 +9,137 @@ output: pdf_document
 
 *Step 1:* Calculate the difference in temp between the treatments and controls for the study duration
 
-*Step 2:* Run a paired t-test between the hourly averaged differences in temperature before ash removal and after 
+*Step 2.1:* 1) calculate some summary statistics
+            - for each treatment pair
+               a) what is the max temp difference, at what time of the day
+               b) what is the min temp diff, at what time of day?
+               c) save to a table #as.table()
+              
+          2) show some summary graphs #
+              a) plot histograms of the difference values between treatments (using ggplot facet)
+  
 
-*Step 3:* Make a barplot or boxplot to show the average difference and st error in temperature in the before and after treatments. 
+*Step 2.2:* Run overall value t-tests between the hourly averaged differences in temperature before ash removal and after 
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments. 
+
+*Step 4:* Make a line plot of the differences in temperature in the before and after treatments 
+    - may need to change "date_time" to day 1, 2, 3 so able to fully overlay values
+
+
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-libraries-and-data, echo = FALSE}
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(tidyr)
+options(stringsAsFactors = FALSE)
+
+```
+
+
+```{r load-data}
+# read csv file
+ash_data <- read.csv("data/ash-microclimate-data2018-prelim.csv", header = T) 
+```
+
+
+```{r step-1-temp-treatment-control-diffs}
+# create a copy of the dataset and prep for subtractions
+ash_data2 <- ash_data %>%
+  filter(ash_removal != "during_removal") # remove any results "during removal"
+
+# verify that "during" values were removed from ash_data2
+unique(ash_data2$ash_removal)
+
+# # spread data into 4 columns for temp values [not working!! Maybe due to the times being off at some point during the study?]
+# ash_data2 %>% 
+#   filter(sensor_name == "control_sun" | sensor_name == "treatment_tree_100e") %>% 
+#   spread(key = sensor_name, value = tempF)
+
+# create new temp dataframes for values
+tt_100e_before <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_100e", ash_removal == "before_removal")
+
+tt_101w_before <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_101w", ash_removal == "before_removal")
+
+c_sun_before <- ash_data2 %>% 
+  filter(sensor_name == "control_sun", ash_removal == "before_removal")
+
+c_103_before <- ash_data2 %>% 
+  filter(sensor_name == "control_tree_103", ash_removal == "before_removal")
+
+
+# get all the "before" sensor data into separate columns and subtract temp differences
+ash_data3_before <- tt_100e_before %>%  # name a new dataframe
+  inner_join(tt_101w_before, by = "date_time") %>% #join 101w to 100e by date_time
+  inner_join(c_sun_before, by = "date_time") %>% #join c_sun to 100e by date_time
+  inner_join(c_103_before, by = "date_time") %>% #join c_103 to 100e by date_time
+  rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>% # rename columns
+  select(date_time, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% # pull out the columns that are important
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), diff_sun_101w = (tempF.sun-tempF.101w), diff_sun_103 = (tempF.sun-tempF.103), diff_103_100e = (tempF.103-tempF.100e), diff_103_101w = (tempF.103-tempF.101w), diff_100e_101w = (tempF.100e-tempF.101w))   # create new columns to store the difference values
+
+
+# the after removal times aren't matching up so need to cut off the second decimal places
+tt_100e_after <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_100e", ash_removal == "after_removal") %>% 
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+tt_101w_after <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_101w", ash_removal == "after_removal") %>% 
+    mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+  
+
+c_sun_after <- ash_data2 %>% 
+  filter(sensor_name == "control_sun", ash_removal == "after_removal") %>% 
+    mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+
+c_103_after <- ash_data2 %>% 
+  filter(sensor_name == "control_tree_103", ash_removal == "after_removal") %>% 
+    mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+
+# get all the "after" sensor data into separate columns and subtract temp differences
+ash_data3_after <- tt_100e_after %>%  # name a new dataframe
+  inner_join(tt_101w_after, by = "date_time2") %>% #join 101w to 100e by date_time
+  inner_join(c_sun_after, by = "date_time2") %>% #join c_sun to 100e by date_time
+  inner_join(c_103_after, by = "date_time2") %>% #join c_103 to 100e by date_time
+  rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>% # rename columns
+  select(date_time2, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% # pull out the columns that are important
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), diff_sun_101w = (tempF.sun-tempF.101w), diff_sun_103 = (tempF.sun-tempF.103), diff_103_100e = (tempF.103-tempF.100e), diff_103_101w = (tempF.103-tempF.101w), diff_100e_101w = (tempF.100e-tempF.101w))   # create new columns to store the difference values
+
+
+
+```
+
+```{r step2-summary-stats}
+
+
+
+```
+
+
+```{r step-3-t-tests}
+# overall t-tests using full columns of data
+t.test(ash_data3_before$tempF.sun, ash_data3_before$tempF.100e) # temps between sun control and 100e treatment signficantly different
+t.test(ash_data3_after$tempF.sun, ash_data3_after$tempF.100e) # not significantly different
+
+t.test(ash_data3_before$diff_sun_100e, ash_data3_after$diff_sun_100e) # the mean difference in "before removal" temperature between sun control and 100e is signficantly different from the "after removals" temperature between sun control and 100e
+
+# write out to a table for comparison
+
+
+# not sure if we need paried tests
+# # use paired t-tests to compare the difference values on a minute by minute basis
+# t.test(ash_data3_before$tempF.sun, ash_data3_before$tempF.100e, paired = TRUE, conf.level = 0.95)
+# t.test(ash_data3_after$tempF.sun, ash_data3_after$tempF.100e, paired = TRUE, conf.level = 0.95)
+
+
+```
+

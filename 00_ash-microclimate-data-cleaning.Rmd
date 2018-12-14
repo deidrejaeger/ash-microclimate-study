@@ -5,7 +5,7 @@ date: "10/12/2018"
 output: html_document
 ---
 
-```{r install-packages-library results='hide'}
+```{r install-packages-library results='hide', echo = FALSE}
 # install.packages("dplyr")
 # install.packages("lubridate")
 library(dplyr) # mutate function
@@ -13,13 +13,13 @@ library(lubridate) # as.POSIX function
 options(stringsAsFactors = FALSE) # makes dates strings
 ```
 
-```{r import-100e-treatment-data}
+```{r import-100e-treatment-data, echo = FALSE}
 # treatment 100e before removal
 treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
 
 treatment_100e_before$blank1 <- NULL
 treatment_100e_before$sensor_sn <- rep(20439121)
-treatment_100e_before$sensor_name <- rep("treatment_100e")
+treatment_100e_before$sensor_name <- rep("treatment_tree_100e")
 treatment_100e_before$ash_removal <- rep("before_removal")
 
 head(treatment_100e_before)
@@ -33,7 +33,7 @@ treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv
 
 treatment_100e_after$blank1 <- NULL
 treatment_100e_after$sensor_sn <- rep(20439121)
-treatment_100e_after$sensor_name <- rep("treatment_100e")
+treatment_100e_after$sensor_name <- rep("treatment_tree_100e")
 treatment_100e_after$ash_removal <- rep("after_removal")
 
 head(treatment_100e_after)
@@ -46,18 +46,20 @@ str(treatment_100e_clean)
 # formats date 
 treatment_100e_clean <- treatment_100e_clean %>% mutate(date_time = ymd_hms(date_time))
 
+treatment_100e_clean %>% write.csv(file = "data/treatment_100e_clean.csv")
+
 str(treatment_100e_clean)
 
 head(treatment_100e_clean)
 ```
 
-```{r import-101w-treatment-data}
+```{r import-101w-treatment-data, echo = FALSE}
 # treatment 101w before removal
 treatment_101w_before <- read.csv("data/SN 20439119 2018-09-20 00_07_03 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
 
 treatment_101w_before$blank1 <- NULL
 treatment_101w_before$sensor_sn <- rep(20439119)
-treatment_101w_before$sensor_name <- rep("treatment_101w")
+treatment_101w_before$sensor_name <- rep("treatment_tree_101w")
 treatment_101w_before$ash_removal <- rep("before_removal")
 
 head(treatment_101w_before)
@@ -71,7 +73,7 @@ treatment_101w_after <- read.csv("data/SN 20439119 2018-09-26 10_22_57 -0600.csv
 
 treatment_101w_after$blank1 <- NULL
 treatment_101w_after$sensor_sn <- rep(20439119)
-treatment_101w_after$sensor_name <- rep("treatment_101w")
+treatment_101w_after$sensor_name <- rep("treatment_tree_101w")
 treatment_101w_after$ash_removal <- rep("after_removal")
 
 head(treatment_101w_after)
@@ -82,17 +84,19 @@ str(treatment_101w_clean)
 
 treatment_101w_clean <- treatment_101w_clean %>% mutate(date_time = ymd_hms(date_time))
 
+treatment_101w_clean %>% write.csv(file = "data/treatment_101w_clean.csv")
+
 str(treatment_101w_clean)
 
 head(treatment_101w_clean)
 ```
 
-```{r import-103-control-data}
+```{r import-103-control-data, echo = FALSE}
 control_103_data <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
 
 control_103_data$blank1 <- NULL
 control_103_data$sensor_sn <- rep(20397886)
-control_103_data$sensor_name <- rep("control_103")
+control_103_data$sensor_name <- rep("control_tree_103")
 
 head(control_103_data)
 
@@ -110,6 +114,8 @@ control_103_data_after <- control_103_data %>% filter(date_time >= ymd_hms("2018
 # combine data
 control_103_data_clean <- rbind(control_103_data_before, control_103_data_during, control_103_data_after)
 
+control_103_data_clean %>% write.csv(file = "data/control_103_data_clean.csv")
+
 head(control_103_data_clean)
 
 str(control_103_data_clean)
@@ -118,10 +124,9 @@ str(control_103_data_clean)
 unique(control_103_data_clean$ash_removal)
 
 nrow(control_103_data) == nrow(control_103_data_clean)
-                                                     
 ```
 
-```{r import-sun-control-data}
+```{r import-sun-control-data, echo = FALSE}
 control_sun_data <- read.csv("data/SN 20439118 2018-09-26 10_29_52 -0600.csv", skip = 1, header = TRUE, col.names = c("date_time", "tempF", "sensor_sn", "sensor_name", "ash_removal", "blank1"))
 
 control_sun_data$blank1 <- NULL
@@ -148,19 +153,20 @@ head(control_sun_data_clean)
 
 str(control_sun_data_clean)
 
+control_sun_data_clean %>% write.csv(file = "data/control_sun_data_clean.csv")
+
 # check data
 unique(control_sun_data_clean$ash_removal)
 
 nrow(control_sun_data) == nrow(control_sun_data_clean)
 ```
 
-```{r combine-data}
+```{r combine-data, echo = FALSE}
 # remove 'during' dataframe
 all_data <- rbind(treatment_100e_clean, treatment_101w_clean, control_103_data_clean, control_sun_data_clean)
-                                                     
 ```
 
-```{r format-date-time}
+```{r format-date-time, echo = FALSE}
 all_data <- all_data %>% mutate(sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
 
 head(all_data)
@@ -168,18 +174,16 @@ head(all_data)
 str(all_data)
 ```
 
-```{r set-factors}
+```{r set-factors, echo = FALSE}
 # check for NA in data
 all_data %>% filter(is.na(tempF))
 
 # remove rows with NA (! = not equal to)
 all_data <- all_data %>% filter(!is.na(tempF))
-
 ```
 
-```{r export csv}
+```{r export-csv, echo = FALSE}
 all_data %>% write.csv(file = "data/ash-microclimate-data2018.csv")
-
 ```
 
 
