@@ -90,6 +90,8 @@ ash_data3_after <- tt_100e_after %>%
          diff_100e_101w = (tempF.100e-tempF.101w))
 
 head(ash_data3_after)
+
+str(ash_data3_before)
 ```
 
 *Step 2.1:*  1) calculate some summary statistics
@@ -101,9 +103,53 @@ head(ash_data3_after)
           ###2) show some summary graphs #
               a) plot histograms of the difference values between treatments (using ggplot facet)
 ```{r summary-stats, echo=FALSE}
-max_before <- max(ash_data3_before[1:4325,7])
+maxb_sun_100e <- max(ash_data3_before[1:4325,7])
+p_sun_100e <- which(ash_data3_before$diff_sun_100e == maxb_sun_100e)
+dtb_sun_100e <- ash_data3_before[p_sun_100e,1]
 
-max <- as.table(ash_data3_before$date_time, max_before)
+#####################
+
+maxb_sun_101w <- max(ash_data3_before[1:4325,8])
+p_sun_101w <- which(ash_data3_before$diff_sun_101w == maxb_sun_101w)
+dtb_sun_101w <- ash_data3_before[p_sun_101w,1]
+
+max_values <- cbind(dtb_sun_100e, maxb_sun_100e,dtb_sun_101w, maxb_sun_101w)
+
+#####################
+
+maxb_sun_103 <- max(ash_data3_before[1:4325,9])
+p_sun_103 <- which(ash_data3_before$diff_sun_103 == maxb_sun_103)
+dtb_sun_103 <- ash_data3_before[p_sun_103,1]
+
+#####################
+
+maxb_103_100e <- max(ash_data3_before[1:4325,10])
+p_103_100e <- which(ash_data3_before$diff_103_100e == maxb_103_100e)
+dtb_103_100e <- ash_data3_before[p_103_100e,1]
+
+#####################
+
+maxb_103_101w <- max(ash_data3_before[1:4325,11])
+p_103_101w <- which(ash_data3_before$diff_103_101w == maxb_103_101w)
+dtb_103_101w <- ash_data3_before[p_103_101w,1]
+
+#####################
+
+maxb_100e_101w <- max(ash_data3_before[1:4325,12])
+p_100e_101w <- which(ash_data3_before$diff_100e_101w == maxb_100e_101w)
+dtb_100e_101w <- ash_data3_before[p_100e_101w,1]
+
+max_values <- cbind(dtb_sun_100e, maxb_sun_100e, dtb_sun_101w, maxb_sun_101w, dtb_sun_103, maxb_sun_103, dtb_103_100e, maxb_103_100e, dtb_103_101w, maxb_103_101w, dtb_100e_101w, maxb_100e_101w)
+
+
+####################################################### for loop
+
+# for (year in c(2010:2015)){print(paste("the year is", year))}
+# tester <- apply(d1, FUN=which.max, 2)
+# for(maxbefore in c(ash_data3_before[1:4325, 7:12])
+#     {print(paste("the max is", maxbefore))}
+
+test <- apply(ash_data3_before, FUN = which.max, 7)
 ```
 
 *Step 2.2:* Run overall value t-tests between the hourly averaged differences in temperature before ash removal and after 
