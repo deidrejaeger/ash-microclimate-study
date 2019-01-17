@@ -44,7 +44,7 @@ options(stringsAsFactors = FALSE)
 
 ```{r load-data}
 # read csv file
-ash_data <- read.csv("data/ash-microclimate-data2018-prelim.csv", header = T) 
+ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T) 
 ```
 
 
@@ -82,7 +82,12 @@ ash_data3_before <- tt_100e_before %>%  # name a new dataframe
   inner_join(c_103_before, by = "date_time") %>% #join c_103 to 100e by date_time
   rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>% # rename columns
   select(date_time, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% # pull out the columns that are important
-  mutate(diff_sun_100e = (tempF.sun-tempF.100e), diff_sun_101w = (tempF.sun-tempF.101w), diff_sun_103 = (tempF.sun-tempF.103), diff_103_100e = (tempF.103-tempF.100e), diff_103_101w = (tempF.103-tempF.101w), diff_100e_101w = (tempF.100e-tempF.101w))   # create new columns to store the difference values
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), 
+         diff_sun_101w = (tempF.sun-tempF.101w), 
+         diff_sun_103 = (tempF.sun-tempF.103), 
+         diff_103_100e = (tempF.103-tempF.100e), 
+         diff_103_101w = (tempF.103-tempF.101w), 
+         diff_100e_101w = (tempF.100e-tempF.101w))   # create new columns to store the difference values
 
 
 # the after removal times aren't matching up so need to cut off the second decimal places
@@ -118,12 +123,131 @@ ash_data3_after <- tt_100e_after %>%  # name a new dataframe
 
 ```
 
-```{r step2-summary-stats}
+*Step 2.1:*  1) calculate some summary statistics
+            - for each treatment pair
+               a) what is the max temp difference, at what time of the day
+               b) what is the min temp diff, at what time of day?
+               c) save to a dataframe
+              
+          ###2) show some summary graphs #
+              a) plot histograms of the difference values between treatments (using ggplot facet)
+```{r step2-summary-stats-before-removal}
+# what is the max temp difference between sun and 100e treatments
+maxb_sun_100e <- abs(max(ash_data3_before[1:4325,7])) # max diff is 10.19 degrees F
+# at what time of the day does this difference occur?
+p_sun_100e <- which(ash_data3_before$diff_sun_100e == maxb_sun_100e)
+dtb_sun_100e <- ash_data3_before[p_sun_100e,1] # on Sept 17, 8:49 AM
+# what is the min temp difference between sun and 100e treatments
+minb_sun_100e <- abs(min(ash_data3_before[1:4325,7])) # max diff is 10.19 degrees F
+# at what time of the day does this difference occur?
+p2_sun_100e <- which(ash_data3_before$diff_sun_100e == minb_sun_100e)
+dtb2_sun_100e <- ash_data3_before[p2_sun_100e,1] # on Sept 17, 8:49 AM
+
+#####################
+# what is the max temp difference between sun and 100w treatments
+maxb_sun_101w <- abs(max(ash_data3_before[1:4325,8])) # max diff is 8.11 degrees F
+# at what time of the day does this difference occur?
+p_sun_101w <- which(ash_data3_before$diff_sun_101w == maxb_sun_101w)
+dtb_sun_101w <- ash_data3_before[p_sun_101w,1]
+
+# summary of values
+max_values <- cbind(dtb_sun_100e, maxb_sun_100e,dtb_sun_101w, maxb_sun_101w)
+
+#####################
+# what is the max temp difference between sun and 103 treatments?
+maxb_sun_103 <- abs(max(ash_data3_before[1:4325,9]))
+p_sun_103 <- which(ash_data3_before$diff_sun_103 == maxb_sun_103)
+dtb_sun_103 <- ash_data3_before[p_sun_103,1]
+
+#####################
+# what is the max temp difference between 103 and 100e treatments?
+maxb_103_100e <- abs(max(ash_data3_before[1:4325,10]))
+p_103_100e <- which(ash_data3_before$diff_103_100e == maxb_103_100e)
+dtb_103_100e <- ash_data3_before[p_103_100e,1]
+
+#####################
+# what is the max temp difference between 103 and 101w treatments?
+maxb_103_101w <- abs(max(ash_data3_before[1:4325,11]))
+p_103_101w <- which(ash_data3_before$diff_103_101w == maxb_103_101w)
+dtb_103_101w <- ash_data3_before[p_103_101w,1]
+
+#####################
+# what is the max temp difference between 100e and 101w treatments?
+maxb_100e_101w <- abs(max(ash_data3_before[1:4325,12]))
+p_100e_101w <- which(ash_data3_before$diff_100e_101w == maxb_100e_101w)
+dtb_100e_101w <- ash_data3_before[p_100e_101w,1]
 
 
+# max_v <- as.data.frame(diff_between = c("dtb_sun_100e", "dtb_sun_101w", "dtb_sun_103", "dtb_103_100e", "dtb_103_101w", "dtb_100e_101w"), max_temp_diff = c(maxb_sun_100e, maxb_sun_101w, maxb_sun_103, maxb_103_100e, maxb_103_101w, maxb_100e_101w), time = c(dtb_sun_100e, dtb_sun_101w, dtb_sun_103, dtb_103_100e, dtb_103_101w, dtb_100e_101w))
+
+##################################################################
+# create a dataframe with the difference mins and maxs, and the time they occur
+
+diff_between = c("sun_100e", "sun_101w", "sun_103", "103_100e", "103_101w", "100e_101w")
+
+max_v1 <- as.data.frame(diff_between)
+max_v1$max_temp_diff_b4R <- c(maxb_sun_100e, maxb_sun_101w, maxb_sun_103, maxb_103_100e, maxb_103_101w, maxb_100e_101w)
+max_v1$time_b4R <- c(dtb_sun_100e, dtb_sun_101w, dtb_sun_103, dtb_103_100e, dtb_103_101w[[1]], dtb_100e_101w[[1]])
 
 ```
 
+```{r step2-summary-stats-after-removal}
+ ####################################################### 
+
+# calc for after removal
+
+# what is the max temp difference between sun and 100e treatments
+maxa_sun_100e <- abs(max(ash_data3_after[,7]))
+# at what time of the day does this difference occur?
+r_sun_100e <- which(ash_data3_after$diff_sun_100e == maxa_sun_100e)
+dta_sun_100e <- ash_data3_after[r_sun_100e,1] 
+
+#####################
+# what is the max temp difference between sun and 100w treatments
+maxa_sun_101w <- abs(max(ash_data3_after[,8])) 
+# at what time of the day does this difference occur?
+r_sun_101w <- which(ash_data3_after$diff_sun_101w == maxa_sun_101w)
+dta_sun_101w <- ash_data3_after[r_sun_101w,1]
+
+#####################
+# what is the max temp difference between sun and 103 treatments?
+maxa_sun_103 <- abs(max(ash_data3_after[,9]))
+r_sun_103 <- which(ash_data3_after$diff_sun_103 == maxa_sun_103)
+dta_sun_103 <- ash_data3_after[r_sun_103,1]
+
+#####################
+# what is the max temp difference between 103 and 100e treatments?
+maxa_103_100e <- abs(max(ash_data3_after[,10]))
+r_103_100e <- which(ash_data3_after$diff_103_100e == maxa_103_100e)
+dta_103_100e <- ash_data3_after[r_103_100e,1]
+
+#####################
+# what is the max temp difference between 103 and 101w treatments?
+maxa_103_101w <- abs(max(ash_data3_after[,11]))
+r_103_101w <- which(ash_data3_after$diff_103_101w == maxa_103_101w)
+dta_103_101w <- ash_data3_after[r_103_101w,1]
+
+#####################
+# what is the max temp difference between 100e and 101w treatments?
+maxa_100e_101w <- abs(max(ash_data3_after[,12]))
+r_100e_101w <- which(ash_data3_after$diff_100e_101w == maxa_100e_101w)
+dta_100e_101w <- ash_data3_after[r_100e_101w,1]
+
+
+##################################################################
+# create a dataframe with the difference mins and maxs, and the time they occur
+# 
+# diff_aft_removal = c("dta_sun_100e", "dta_sun_101w", "dta_sun_103", "dta_103_100e", "dta_103_101w", "dta_103_101w", "dta_100e_101w", "dta_100e_101w")
+
+max_v1$max_temp_diff_aftR <- c(maxa_sun_100e, maxa_sun_101w, maxa_sun_103, maxa_103_100e, maxa_103_101w, maxa_100e_101w)
+
+max_v1$time_aftR <- c(dta_sun_100e, dta_sun_101w, dta_sun_103, dta_103_100e, dta_103_101w[[1]], dta_100e_101w)
+
+
+####################################################### for loop
+
+```
+Consider looking at the min temp diffs and the time, write a function to calculate it? 
 
 ```{r step-3-t-tests}
 # overall t-tests using full columns of data
@@ -143,4 +267,91 @@ t.test(ash_data3_before$diff_sun_100e, ash_data3_after$diff_sun_100e) # the mean
 
 ```
 
+
+*Step 2.2:* Run overall value t-tests between the hourly averaged differences in temperature before ash removal and after
+```{r t-test, echo = FALSE}
+ash_data3_before[4326:5497, ] <- NA
+
+t_sun_100e <- t.test(ash_data3_after$diff_sun_100e, 
+                    ash_data3_before$diff_sun_100e, paired = TRUE)
+
+t_sun_100e$p.value
+
+#########
+
+t_sun_101w <- t.test(ash_data3_after$diff_sun_101w, 
+                    ash_data3_before$diff_sun_101w, paired = TRUE)
+
+t_sun_101w$p.value
+
+#########
+
+t_sun_103 <- t.test(ash_data3_after$diff_sun_103, 
+                    ash_data3_before$diff_sun_103, paired = TRUE)
+
+t_sun_103$p.value
+
+#########
+
+t_103_100e <- t.test(ash_data3_after$diff_103_100e, 
+                    ash_data3_before$diff_103_100e, paired = TRUE)
+
+t_103_100e$p.value
+
+#########
+
+t_103_101w <- t.test(ash_data3_after$diff_103_101w, 
+                    ash_data3_before$diff_103_101w, paired = TRUE)
+
+t_103_101w$p.value
+
+#########
+
+t_100e_101w <- t.test(ash_data3_after$diff_100e_101w, 
+                    ash_data3_before$diff_100e_101w, paired = TRUE)
+
+t_100e_101w$p.value
+```
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments. 
+```{r bar-plot-avg-diffs, echo=FALSE}
+
+ash_data3_before %>% filter(ash_data3_before$date_time >= "2018-09-17 00:00:59" | ash_data3_before$date_time < "2018-09-17 01:00:59") %>% summarize(avg = mean(ash_data3_before))
+
+plot(avg)
+
+
+# ggplot(data = stom_spec, mapping = aes(x = species, y = stomata_density)) +
+#   geom_bar(stat = "identity", color = area.color, fill = area.color) + 
+#   geom_errorbar(aes(ymin = SE_lower, ymax = SE_upper), width = 0.4) + 
+#   geom_text(aes(x = species, y = SE_upper+.4, label = letters), size = 5)+
+#   ylab("Stomata Density (1/mm^2)") +
+#   xlab("Species") +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+*Step 4:* ###Make a line plot of the differences in temperature in the before and after treatments 
+    - may need to change "date_time" to day 1, 2, 3 so able to fully overlay values
+```{r line-plot-diffs, echo = FALSE}
+ash_data3_after2 <- ash_data3_after %>% 
+  rename(date_time = date_time2)
+
+ 
+
+#c("date_time", "ash_removal.x", "tempF.100e", "tempF.101w", "tempF.sun", "tempF.103", "diff_sun_100e", "diff_sun_101w", "diff_sun_103", "diff_103_100e", "diff_103_101w", "diff_100e_101w")
+
+
+ash_data3 <- rbind(ash_data3_before, ash_data3_after2)
+
+# for this plot, we need to use dplyr to gather the temp values into a single column for the plot
+
+ash_data3 %>%
+  group_by(ash_removal.x) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF, color = sensor_name)) +
+  facet_wrap(facets = ~ ash_removal.x)
+```
+
+Left off Jan 16: calc mean temps, look at t .tests, finish plots
 
