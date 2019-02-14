@@ -10,16 +10,19 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r load-libraries, echo = FALSE}
+library(plyr)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
 library(tidyr)
+library(reshape2)
 options(stringsAsFactors = FALSE)
 ```
 
 ```{r load-data, echo = FALSE}
 ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T)
 ```
+
 
 *Step 1:* Calculate the difference in temp between the treatments and controls for the study duration ---DONE
 ```{r temp-treatment-control-diffs, echo = FALSE}
@@ -94,6 +97,7 @@ head(ash_data3_after)
 str(ash_data3_after)
 ```
 
+
 *Step 2.1:*  1) calculate some summary statistics
             - for each treatment pair
                a) what is the max temp difference, at what time of the day
@@ -153,15 +157,43 @@ max_values <- cbind(dtb_sun_100e, maxb_sun_100e, dtb_sun_101w, maxb_sun_101w, dt
 # test <- apply(ash_data3_before, FUN = which.max, 7)
 ```
 
+*Step 2.1.1:*
 2) show some summary graphs 
-   a) plot histograms of the difference values between treatments (using ggplot facet)
+   a) plot histograms of the difference values between treatments (using ggplot facet)---DONE
 ```{r overlapping-histograms, echo = FALSE}
-#combine diff columns into one column or add columns with difference titles, then use as the new data and include facets for the difference titles
 
+ash_data_diffs <- data.frame("diff_cat" = rep(NA, 51900), "diff_tempF" = rep(NA, 51900), "rem_stat" = rep(NA, 51900))
 
-ggplot(data = ash_data3_before) +
-  geom_histogram(mapping = aes(x = tempF_diff, y = stat(density), fill = ash_removal), position = "identity", bins = 36, alpha = 0.6)
+ash_data_diffs$diff_cat <- c(rep("sun_100e", 4325), rep("sun_101w", 4325), rep("sun_103", 4325), rep("103_100e", 4325), rep("103_101w", 4325), rep("100e_101w", 4325), rep("sun_100e", 4325), rep("sun_101w", 4325), rep("sun_103", 4325), rep("103_100e", 4325), rep("103_101w", 4325), rep("100e_101w", 4325))
 
+ash_data_diffs$diff_cat <- as.factor(ash_data_diffs$diff_cat)
+
+ash_data_diffs$rem_stat <- c(rep("before_removal", 25950), rep("after_removal", 25950))
+
+ash_data_diffs$diff_tempF[1:4325] <- c(ash_data3_before[,7])
+ash_data_diffs$diff_tempF[4326:8650] <- c(ash_data3_before[,8])
+ash_data_diffs$diff_tempF[8651:12975] <- c(ash_data3_before[,9])
+ash_data_diffs$diff_tempF[12976:17300] <- c(ash_data3_before[,10])
+ash_data_diffs$diff_tempF[17301:21625] <- c(ash_data3_before[,11])
+ash_data_diffs$diff_tempF[21626:25950] <- c(ash_data3_before[,12])
+
+ash_data_diffs$diff_tempF[25951:30275] <- c(ash_data3_after[,7])
+ash_data_diffs$diff_tempF[30276:34600] <- c(ash_data3_after[,8])
+ash_data_diffs$diff_tempF[34601:38925] <- c(ash_data3_after[,9])
+ash_data_diffs$diff_tempF[38926:43250] <- c(ash_data3_after[,10])
+ash_data_diffs$diff_tempF[43251:47575] <- c(ash_data3_after[,11])
+ash_data_diffs$diff_tempF[47576:51900] <- c(ash_data3_after[,12])
+
+ash_data_diffs$rem_stat <- factor(ash_data_diffs$rem_stat, levels = c('before_removal','after_removal'))
+
+ggplot(data = ash_data_diffs) +
+  geom_density(mapping = aes(x = diff_tempF, y = stat(density), color = diff_cat), position = "identity", bins = 36, alpha = 0.6) +
+  facet_wrap(facets = ~ rem_stat) 
+
+ggplot(data = ash_data_diffs) +
+  geom_density(mapping = aes(x = diff_tempF, y = stat(density), color = diff_cat), position = "identity", bins = 36, alpha = 0.6) +
+  xlim(-3, 3) +
+  facet_wrap(facets = ~ rem_stat) 
 ```
                
 
@@ -222,25 +254,26 @@ p100e101w <- t_100e_101w$p.value
 paste("p-val for 100e vs 101w is ", p100e101w)
 ```
 
-*Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments. 
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments.---DONE
 ```{r bar-plot-avg-diffs, echo=FALSE}
 
-ash_data3_before %>% filter(ash_data3_before$date_time >= "2018-09-17 00:00:59" | ash_data3_before$date_time < "2018-09-17 01:00:59") %>% summarize(avg = mean(ash_data3_before))
+melted <- melt(ash_data_diffs, id.vars = c("diff_cat", "rem_stat"))
 
-plot(avg)
+mean_diffs <- ddply(melted, c("diff_cat", "rem_stat"), summarise, mean = mean(value), se = sd(value))
 
+mean_diffs$diff_cat <- as.factor(mean_diffs$diff_cat)
 
-# ggplot(data = stom_spec, mapping = aes(x = species, y = stomata_density)) +
-#   geom_bar(stat = "identity", color = area.color, fill = area.color) + 
-#   geom_errorbar(aes(ymin = SE_lower, ymax = SE_upper), width = 0.4) + 
-#   geom_text(aes(x = species, y = SE_upper+.4, label = letters), size = 5)+
-#   ylab("Stomata Density (1/mm^2)") +
-#   xlab("Species") +
-#   theme_bw() +
-#   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggplot(data = mean_diffs, aes(x = diff_cat, y = mean, color = diff_cat, fill = diff_cat)) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean-se, ymax = mean+se), width = .2) +
+  facet_wrap(facets = ~rem_stat)+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 ```
 
-*Step 4:* ###Make a line plot of the differences in temperature in the before and after treatments 
+
+*Step 4:* Make a line plot of the differences in temperature in the before and after treatments #in relation to days
     - may need to change "date_time" to day 1, 2, 3 so able to fully overlay values
 ```{r line-plot-diffs, echo = FALSE}
 ash_data3_after2 <- ash_data3_after %>% 
