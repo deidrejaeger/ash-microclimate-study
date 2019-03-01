@@ -43,7 +43,7 @@ options(stringsAsFactors = FALSE) # so that dates read in as character strings n
 ```{r step1-load-data, echo=FALSE}
 
 # read csv file
-ash_data <- read.csv("data/ash-microclimate-data2018.csv", header = T) 
+ash_data <- read.csv("data/ash-microclimate-data2018-prelim.csv", header = T) 
 
 # check structure and make sure every column and row we expect to be there is present
 head(ash_data)
@@ -101,3 +101,78 @@ ash_data %>%
 
 ```
 
+```{r rename-factors-for-plotting}
+
+# create an empty column
+ash_data1 <- ash_data %>% 
+  mutate(ash_removal_plot = NA)
+
+# fill the new column with the ash removal status that starts with a number so it will order numerically as a factor
+ash_data1.1 <- ash_data1 %>% 
+  filter(ash_removal == "before_removal") %>% 
+  mutate(ash_removal_plot = "1_before_removal")
+
+ash_dat1.2 <- ash_data1 %>% 
+  filter(ash_removal == "during_removal") %>% 
+  mutate(ash_removal_plot = "2_during_removal")
+
+ash_dat1.3 <- ash_data1 %>% 
+  filter(ash_removal == "after_removal") %>% 
+  mutate(ash_removal_plot = "3_after_removal")
+
+# fuse the dataframes
+ash_data_all <- rbind(ash_data1.1, ash_dat1.2, ash_dat1.3)
+
+```
+
+
+```{r histograms-by-sensor, echo = FALSE}
+ash_data %>% ggplot() + geom_histogram(mapping = aes(x = tempF, color = ash_removal), bins = 40) + facet_grid(facets = sensor_name ~ ash_removal)
+
+ash_data_all %>% 
+  ggplot() + 
+  geom_histogram(mapping = aes(x = tempF, color = ash_removal), bins = 40) + 
+  facet_grid(facets = sensor_name ~ ash_removal_plot)
+```
+
+make a histogram with before and after data, separated by sensor (basically a histogram of the last plot)
+
+```{r overlapping-histograms, echo = FALSE}
+ggplot(data = ash_data) +
+  geom_histogram(mapping = aes(x = tempF, y = stat(density), fill = ash_removal), position = "identity", bins = 36, alpha = 0.6)
+```
+
+```{r time-series-scatterplot, echo = FALSE}
+ash_data %>% filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% group_by(ash_removal) %>% 
+  ggplot() + 
+  geom_point(mapping = aes(x = date_time, y = tempF, color = ash_removal)) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) + 
+  facet_wrap(facets = ~ sensor_name)
+```
+
+```{r time-series-lineplot, echo = FALSE}
+ash_data %>% filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% group_by(ash_removal) %>% 
+  ggplot() + 
+  geom_line(mapping = aes(x = date_time, y = tempF, color = ash_removal)) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) + 
+  facet_wrap(facets = ~ sensor_name)
+```
+
+```{r overlay-line-plots, echo = FALSE}
+ash_data %>% filter(ash_removal != "during_removal") %>%
+  group_by(ash_removal) %>% 
+  ggplot() + 
+  geom_line(mapping = aes(x = date_time, y = tempF, color = sensor_name)) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 12:20:59")) 
+```
+
+```{r overlay-line-plots-2, echo = FALSE}
+ash_data %>% filter(ash_removal != "during_removal") %>% #try filtering out dates with no data
+  group_by(ash_removal) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF, color = sensor_name)) +
+  facet_wrap(facets = ~ ash_removal) #check facet_wrap help for how to order the facets
+```

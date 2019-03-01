@@ -1,0 +1,90 @@
+---
+title: "Emerald Ash Borer related tree removal and implications for urban heat: a pilot field study"
+author: "Deidre Jaeger, Phd Student University of Colorado- Boulder, with support from Amanda Looze, B.S. Ecology, Mechanical Engineering"
+date: "2/28/2019"
+output: html_document
+---
+
+**Abstract:** With increasing in global air temperatures as well as increased urbanization, cities are needing to incorporate innovative urban heat mitigation into their strategic sustainability plans. Urban tree canopies help mitigate urban heat through evaporative cooling and shading and are valued for providing numerous ecosystem services. In Boulder, Colorado, emerald ash borer (Agrilus planipennis) has been detected and puts over 20% of the urban canopy at a high likelihood of beetle infestation and mortality. The loss of these mature ash trees will significantly reduce urban shade, and we hypothesize there may be a detectable increase in local air temperature after ash tree removal. The effects of ash removal on local microclimates have not been studied in Colorado and this summer 2018 study is expected to give insight to the immediate changes in local weather that residents and wildlife may experience with significant urban forest canopy loss. We surveyed air temperature in an exploratory pilot study in Boulder, Colorado in 2018 to look at the immediate impact of ash removal on air temperature. Findings show 
+
+With a larger study, we may be able to provide predictions for local urban heat dynamics under change tree canopy, as well as baseline values for restoration and intermediate intervention plans for shade.  
+
+
+
+**Research question:** How is ambient air temperature immediately impacted by green ash tree (*Fraxinus americana*) removal? 
+
+**Hypothesis:** Air temperature will increase at the location of the removed ash trees (#100e and 101w) due to increased solar radiation and decreasing shade and evapotranspiration.
+
+**Methods:** Air temperature was measured in four locations along Boulder creek (Photo 1.) from September 17-24. Removal of the adjacent ash trees #100e and 101w occured on September 20th between 8am - 11am.
+
+
+```{r global_options, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo=FALSE, results= FALSE)
+
+```
+
+
+```{r load-libraries, results= FALSE}
+# use install.packages("insert-package-name-here") if you get an error message that says "there is no package called ....x...."
+
+library(dplyr) # for mutate() functionality
+library(lubridate) # for as.POSIX function
+library(ggplot2)
+library(gridExtra) # for side by side plots
+library(png) # libraries for images
+library(grid) # libraries for images
+options(stringsAsFactors = FALSE) # so that dates read in as character strings not factors (factors are troublesome for converting to dates)
+```
+ 
+```{r photo1, echo=FALSE, fig.cap= "Photo 1. Aerial view of the study area, North of Boulder Creek, Boulder, Colorado."}
+img1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/aerial_map_study_area.png")
+ grid.raster(img1)
+
+```
+
+```{r photo2, echo=FALSE, fig.cap= "Photo 2. Photo of treatment site where two green ash trees (Fraxinus americana) infected with Emerald Ash Borer beetles to be removed Sept 24, 2018 from Boulder Creek, Boulder, Colorado. a) showstreatment tree 100e and b) shows treatment tree 101w. "}
+img2 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/Slide1.png")
+ grid.raster(img2)
+
+```
+
+
+```{r photo3, echo=FALSE, fig.cap= "Photo 3. a) shows the control tree (Fraxinus americana) that was not removed during the study and b) shows the control site with no trees along Boulder Creek, Boulder, Colorado."}
+img3 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/Slide2.png")
+ grid.raster(img3)
+
+```
+
+
+```{r figure1, echo=FALSE, fig.cap= "Figure 1. "}
+fig1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/before-after-barplot.png")
+ grid.raster(fig1)
+
+```
+
+```{r figure2, echo=FALSE, fig.cap= "Figure 2. "}
+fig2 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/site_diffs_before_after.png")
+ grid.raster(fig2)
+
+```
+
+```{r figure3, echo=FALSE, fig.cap= "Figure 3. "}
+fig3 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/timeseries-before-after.png")
+ grid.raster(fig3)
+
+```
+
+```{r figure4, echo=FALSE, fig.cap= "Figure 4. "}
+fig4 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/before-after-raw-data.png")
+ grid.raster(fig4)
+
+```
+
+```{r figure5, echo=FALSE, fig.cap= "Figure 5. "}
+fig5 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/before-during-after-hist.png")
+ grid.raster(fig5)
+
+```
+
+
+

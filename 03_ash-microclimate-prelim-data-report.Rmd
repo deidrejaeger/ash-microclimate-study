@@ -1,0 +1,385 @@
+---
+title: "Preliminary Data from Boulder Ash Removal Microclimate Study"
+author: "Deidre Jaeger"
+date: "11/9/2018"
+output: pdf_document
+---
+**Research question:** How is microclimate impacted by ash (*Fraxinus sp.*) removal? 
+
+**Hypothesis:** Air temperature will increase at the location of the removed ash trees (#100e and 101w) due to increased solar radiation and decreasing shade and evapotranspiration.
+
+**Methods:** Air temperature was measured in four locations along Boulder creek (Photo 1.) from September 17-24. Removal of the adjacent ash trees #100e and 101w occured on September 20th between 8am - 11am.
+
+
+```{r global_options, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo=FALSE, results= FALSE)
+
+```
+
+
+```{r load-libraries, results= FALSE}
+# use install.packages("insert-package-name-here") if you get an error message that says "there is no package called ....x...."
+
+library(dplyr) # for mutate() functionality
+library(lubridate) # for as.POSIX function
+library(ggplot2)
+library(gridExtra) # for side by side plots
+library(png) # libraries for images
+library(grid) # libraries for images
+options(stringsAsFactors = FALSE) # so that dates read in as character strings not factors (factors are troublesome for converting to dates)
+```
+ 
+```{r photo1, echo=FALSE, fig.cap= "Photo 1. Aerial view of the study area, North of Boulder Creek, Boulder, Colorado."}
+img1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/aerial_map_study_area.png")
+ grid.raster(img1)
+
+```
+ 
+ 
+```{r step1-import-treatment-data}
+
+# import the data from the treatment and control sensors
+
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_100e_before <- read.csv("data/SN 20439121 2018-09-20 00_06_33 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+treatment_100e_before$blank1 <- NULL # Remove the blank columns
+treatment_100e_before$sensor_sn <- rep(20439121) # add the sensor serial number
+treatment_100e_before$sensor_name <- rep("treatment_tree_100e") # fill column with the sensor name
+treatment_100e_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
+
+
+# check the first 6 rows to see if the dataframe looks as we expect
+head(treatment_100e_before)
+
+# check the structure of how it is loaded
+str(treatment_100e_before) # we will eventually want date to be formated as date, but for now having number for temp and character for sensor name look good
+
+
+# open the second file of the treatment-tree 100e, from the "after" removal
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_100e_after <- read.csv("data/SN 20439121 2018-09-26 10_27_52 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+treatment_100e_after$blank1 <- NULL # Remove the blank columns
+treatment_100e_after$sensor_sn <- rep(20439121) # add the sensor serial number
+treatment_100e_after$sensor_name <- rep("treatment_tree_100e") # fill column with the sensor name
+treatment_100e_after$ash_removal <- rep("after_removal") # fill the column with the ash removal status
+
+# check the first 6 rows to see if the dataframe looks as we expect
+head(treatment_100e_after)
+
+# combine the before and after treatment into 1 dateframe
+treatment_100e_clean <- rbind(treatment_100e_before, treatment_100e_after)
+
+# check the structure of how it is loaded
+str(treatment_100e_clean) # date is a character, we want to code it as a date
+
+# format 
+treatment_100e_clean <- treatment_100e_clean %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+str(treatment_100e_clean) # check that class structure changes to "POSIXct"
+
+
+#### tree 101w
+# import the data from the treatment and control sensors
+
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_101w_before <- read.csv("data/SN 20439119 2018-09-20 00_07_03 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+treatment_101w_before$blank1 <- NULL # Remove the blank columns
+treatment_101w_before$sensor_sn <- rep(20439119) # add the sensor serial number
+treatment_101w_before$sensor_name <- rep("treatment_tree_101w") # fill column with the sensor name
+treatment_101w_before$ash_removal <- rep("before_removal") # fill the column with the ash removal status
+
+
+# check the first 6 rows to see if the dataframe looks as we expect
+head(treatment_101w_before)
+
+# check the structure of how it is loaded
+str(treatment_101w_before) # we will eventually want date to be formated as date, but for now having number for temp and character for sensor name look good
+
+
+# open the second file of the treatment-tree 100e, from the "after" removal
+# open the first file of the treatment-tree 100e, from the "before" removal
+treatment_101w_after <- read.csv("data/SN 20439119 2018-09-26 10_22_57 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+treatment_101w_after$blank1 <- NULL # Remove the blank columns
+treatment_101w_after$sensor_sn <- rep(20439119) # add the sensor serial number
+treatment_101w_after$sensor_name <- rep("treatment_tree_101w") # fill column with the sensor name
+treatment_101w_after$ash_removal <- rep("after_removal") # fill the column with the ash removal status
+
+# check the first 6 rows to see if the dataframe looks as we expect
+head(treatment_101w_after)
+
+# combine the before and after treatment into 1 dateframe
+treatment_101w_clean <- rbind(treatment_101w_before, treatment_101w_after)
+
+# check the structure of how it is loaded
+str(treatment_101w_clean) # date is a character, we want to code it as a date
+
+# format 
+treatment_101w_clean <- treatment_101w_clean %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+str(treatment_101w_clean) # check that class structure changes to "POSIXct"
+
+```
+
+
+```{r step2-import-control-data-files}
+# open the first file of the treatment-tree 100e, from the "before" removal
+control_103_data <- read.csv("data/SN 20397886 2018-09-26 10_27_32 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+
+control_103_data$blank1 <- NULL # Remove the blank columns
+control_103_data$sensor_sn <- rep(20397886) # add the sensor serial number
+control_103_data$sensor_name <- rep("control_tree_103") # fill column with the sensor name
+
+# format date/time
+control_103_data <- control_103_data %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+# assign "before" ash_removal categories
+control_103_data_before <- control_103_data %>% 
+  filter(date_time <= ymd_hms("2018-09-20 00:03:59")) %>% 
+  mutate(ash_removal = "before_removal")
+
+# assign "during" ash_removal categories ( Deidre needs to fix this still!)
+control_103_data_during <- control_103_data %>% 
+  filter((date_time >= ymd_hms("2018-09-20 00:04:00")) & (date_time <= ymd_hms("2018-09-20 12:20:59"))) %>% 
+  mutate(ash_removal = "during_removal")
+
+# assign "after" ash_removal categories
+control_103_data_after <- control_103_data %>% 
+  filter(date_time >= ymd_hms("2018-09-20 12:21:00")) %>% 
+  mutate(ash_removal = "after_removal")
+
+# zip back up into 1 dataframe
+control_103_data_clean <- rbind(control_103_data_before, control_103_data_during, control_103_data_after)
+
+# check that all rows were assigned an ash removal status
+unique(control_103_data_clean$ash_removal)# Yay! There are no NA's meaning we captured all the rows
+nrow(control_103_data) == nrow(control_103_data_clean) # and we didn't lose any rows!
+
+
+##### sun control
+# open the first file of the treatment-tree 100e, from the "before" removal
+control_sun_data <- read.csv("data/SN 20439118 2018-09-26 10_29_52 -0600.csv", # define the file name
+                          skip = 1, # skip reading the first row
+                          header = TRUE, # define the second row as the header
+                          col.names = c("date_time", "tempF", "sensor_sn","sensor_name", "ash_removal", "blank1")) # rename the columns
+
+control_sun_data$blank1 <- NULL # Remove the blank columns
+control_sun_data$sensor_sn <- rep(20439118) # add the sensor serial number
+control_sun_data$sensor_name <- rep("control_sun") # fill column with the sensor name
+
+# format date/time
+control_sun_data <- control_sun_data %>% 
+  mutate(date_time = ymd_hms(date_time)) # format date in R-friendly format
+
+# assign "before" ash_removal categories
+control_sun_data_before <- control_sun_data %>% 
+  filter(date_time <= ymd_hms("2018-09-20 00:03:59")) %>% 
+  mutate(ash_removal = "before_removal")
+
+# assign "during" ash_removal categories ( Deidre needs to fix this still!)
+control_sun_data_during <- control_sun_data %>% 
+  filter((date_time >= ymd_hms("2018-09-20 00:04:00")) & (date_time <= ymd_hms("2018-09-20 12:20:59"))) %>% 
+  mutate(ash_removal = "during_removal")
+
+# assign "after" ash_removal categories
+control_sun_data_after <- control_sun_data %>% 
+  filter(date_time >= ymd_hms("2018-09-20 12:21:00")) %>% 
+  mutate(ash_removal = "after_removal")
+
+# zip back up into 1 dataframe
+control_sun_data_clean <- rbind(control_sun_data_before, control_sun_data_during, control_sun_data_after)
+
+# check that all rows were assigned an ash removal status
+unique(control_sun_data_clean$ash_removal)# Yay! There are no NA's meaning we captured all the rows
+nrow(control_sun_data) == nrow(control_sun_data_clean) # and we didn't lose any rows!
+
+```
+
+```{r step3-bind-into-1-csv}
+
+# aggregate the before and after dataframes for all sensor data into 1 dataframe (best practice for tidy analyses)
+
+# for example:
+all_data <- rbind(treatment_100e_clean, treatment_101w_clean, control_103_data_clean, control_sun_data_clean)
+
+```
+ 
+```{r step4-set-factors}
+
+# we want the sensor serial number, sensor name, and the ash removal status columns to be categorical factors, rather than text characters
+
+# for example:
+all_data <- all_data %>% 
+  mutate(sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
+
+str(all_data) # check that it worked
+```
+
+```{r step5-remove-temp-NAs}
+
+# check for NAs in dataset
+all_data %>% 
+  filter(is.na(tempF)) # fifteen rows don't have a temp value
+
+# remove the rows that have NA temperature values with (! is a boolean operator and means "is not equal to"
+all_data <- all_data %>% 
+  filter(!is.na(tempF))
+
+```
+
+```{r step6-export-csv}
+# export this new dataframe as "ash-microclimate-data2018" so we don't have to rebuild it each time we want to work with it, or we can send it someone over email
+
+# for example: 
+all_data %>% 
+   write.csv(file="data/ash-microclimate-data2018-prelim.csv") # using pipes, write a new csv file saved at the defined filepath
+  
+```
+
+  
+```{r load-data, echo=FALSE}
+
+# read csv file
+ash_data <- read.csv("data/ash-microclimate-data2018-prelim.csv", header = T) 
+
+# check structure and make sure every column and row we expect to be there is present
+head(ash_data)
+unique(ash_data$sensor_name)
+str(ash_data) # darn, we dont have the factors and date formatted anymore
+
+# reset date and factors
+ash_data <- ash_data %>% 
+  mutate(date_time = ymd_hms(date_time), sensor_sn = as.factor(sensor_sn), sensor_name = as.factor(sensor_name), ash_removal = as.factor(ash_removal))
+
+# recheck structure to make sure date=POSIXct, tempF = num, and everything else is a factor- except we don't care about the "X" factor
+str(ash_data) 
+
+```
+
+```{r view-histograms-by-sensor, results = TRUE, fig.cap = "Figure 1. Histograms of the temperature value distributions from each sensor during each treatment phase"}
+
+ash_data %>% # define date
+  ggplot() +
+  geom_histogram(mapping = aes(x= tempF,
+                               color = sensor_name), bins = 40) + # define x axis
+  facet_grid(facets = sensor_name ~ ash_removal) # define which variables to panel vertical and horizontal graphs with
+
+```
+
+```{r view-time-series-lineplot, results = TRUE, fig.cap = "Figure 2. Time series plot showing control and treatment sensors over the study duration, Sept 17- Sept 24, 2018. Black vertical lines indicate time of tree removal, treatment tree sensors were not logging during this time removal time"}
+
+ash_data %>%
+  filter(ash_removal == "before_removal" | ash_removal == "after_removal") %>% 
+  group_by(ash_removal) %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+                           color = ash_removal)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59")) +
+  facet_wrap( facets = ~ sensor_name)
+
+```
+
+```{r control-only-plots,  results = TRUE, fig.cap = "Time series plot showing control sensors over the study duration, Sept 17- Sept 24, 2018. Black vertical lines indicate time of tree removal, treatment tree sensors were not logging during this time removal time"}
+ash_data %>% 
+  filter(sensor_name == "control_sun" | 
+           sensor_name == "control_tree_103") %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+            color = sensor_name,
+            group = sensor_name,
+            linetype = sensor_name)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59"))
+```
+
+```{r treatment-only-plots, results = TRUE,  fig.cap = "Figure 3. Time series plot showing individual treatment trees 100 and 101 over the study duration, Sept 17- Sept 24, 2018. Black vertical lines indicate time of tree removal, treatment tree sensors were not logging during this time removal time"}
+
+# make the 100e treatment tree
+ash_data %>% 
+  filter(sensor_name == "treatment_tree_100e" | 
+           sensor_name == "treatment_tree_101w") %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+            color = sensor_name,
+            group = sensor_name,
+            linetype = sensor_name)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59"))
+
+
+```
+
+```{r treatment-separated-plots,  results = TRUE, fig.cap = "Figure 4. Time series plot showing individual treatment tree and control sensors over the study duration, Sept 17- Sept 24, 2018. Black vertical lines indicate time of tree removal, treatment tree sensors were not logging during this time removal time"}
+
+# make the 100e treatment tree
+data100e <- ash_data %>% 
+  filter(sensor_name == "treatment_tree_100e" | 
+           sensor_name == "control_sun" | 
+           sensor_name == "control_tree_103") %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+            color = sensor_name,
+            group = sensor_name,
+            linetype = sensor_name)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59"))
+
+# make the 101w treatment tree
+data101w <- ash_data %>% 
+  filter(sensor_name == "treatment_tree_101w" | 
+           sensor_name == "control_sun" | 
+           sensor_name == "control_tree_103") %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+            color = sensor_name,
+            group = sensor_name,
+            linetype = sensor_name)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59"))
+
+grid.arrange(data100e, data101w)
+```
+
+```{r view-grouped-overay,  results = TRUE, fig.cap = "Figure 5. Time series plot of all 4 sensors over the study duration, Sept 17- Sept 24, 2018. Black vertical lines indicate time of tree removal, treatment tree sensors were not logging during this time removal time"}
+
+ash_data %>% 
+  group_by(sensor_name) %>% 
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = tempF,
+            color = sensor_name,
+            group = sensor_name,
+            linetype = sensor_name)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) +
+  geom_vline(xintercept= ymd_hms("2018-09-20 12:20:59")) 
+  
+
+```
+
+```{r overlapping-histograms, echo = FALSE}
+
+ash_data %>% 
+  group_by(sensor_name) %>% 
+ggplot(data = ash_data) +
+  geom_histogram(mapping = aes(x = tempF, y = stat(density), fill = sensor_name), position = "identity", bins = 36, alpha = 0.6) +
+  facet_wrap(facets = ~ sensor_name)
+```
+
+

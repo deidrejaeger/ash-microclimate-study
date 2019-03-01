@@ -1,0 +1,414 @@
+---
+title: "02_ash_dataanalysis_alooze"
+author: "Deidre Jaeger"
+date: "2/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load-libraries, echo = FALSE}
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(tidyr)
+library(reshape2)
+options(stringsAsFactors = FALSE)
+```
+
+```{r load-data, echo = FALSE}
+ash_data <- read.csv("data/ash-microclimate-data2018-prelim.csv", header = T)
+```
+
+
+*Step 1:* Calculate the difference in temp between the treatments and controls for the study duration 
+```{r temp-treatment-control-diffs, echo = FALSE}
+unique(ash_data$sensor_name)
+
+ash_data2 <- ash_data %>% filter(ash_removal != "during_removal")
+
+unique(ash_data2$ash_removal)
+unique(ash_data2$sensor_name)
+
+tt_100e_before <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_100e", ash_removal == "before_removal")
+
+tt_101w_before <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_101w", ash_removal == "before_removal")
+
+c_sun_before <- ash_data2 %>% 
+  filter(sensor_name == "control_sun", ash_removal == "before_removal")
+
+c_103_before <- ash_data2 %>% 
+  filter(sensor_name == "control_tree_103", ash_removal == "before_removal")
+
+ash_data3_before <- tt_100e_before %>% 
+  inner_join(tt_101w_before, by = "date_time") %>% 
+  inner_join(c_sun_before, by = "date_time") %>% 
+  inner_join(c_103_before, by = "date_time") %>% #dplyr::rename()
+  dplyr::rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>% 
+  select(date_time, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% 
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), 
+         diff_sun_101w = (tempF.sun-tempF.101w), 
+         diff_sun_103 = (tempF.sun-tempF.103), 
+         diff_103_100e = (tempF.103-tempF.100e), 
+         diff_103_101w = (tempF.103-tempF.101w), 
+         diff_100e_101w = (tempF.100e-tempF.101w))
+
+head(ash_data3_before)
+
+str(ash_data3_before)
+
+
+
+
+tt_100e_after <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_100e", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+tt_101w_after <- ash_data2 %>% 
+  filter(sensor_name == "treatment_tree_101w", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+c_sun_after <- ash_data2 %>% 
+  filter(sensor_name == "control_sun", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+c_103_after <- ash_data2 %>% 
+  filter(sensor_name == "control_tree_103", ash_removal == "after_removal") %>%
+  mutate(date_time2 = as.POSIXct(date_time, format = "%Y-%m-%d %H:%M"))
+
+ash_data3_after <- tt_100e_after %>% 
+  inner_join(tt_101w_after, by = "date_time2") %>% 
+  inner_join(c_sun_after, by = "date_time2") %>% 
+  inner_join(c_103_after, by = "date_time2") %>% 
+  dplyr::rename(tempF.100e = tempF.x, tempF.101w = tempF.y, tempF.sun = tempF.x.x, tempF.103 = tempF.y.y) %>%
+  select(date_time2, ash_removal.x, tempF.100e, tempF.101w, tempF.sun, tempF.103) %>% 
+  mutate(diff_sun_100e = (tempF.sun-tempF.100e), 
+         diff_sun_101w = (tempF.sun-tempF.101w), 
+         diff_sun_103 = (tempF.sun-tempF.103), 
+         diff_103_100e = (tempF.103-tempF.100e), 
+         diff_103_101w = (tempF.103-tempF.101w), 
+         diff_100e_101w = (tempF.100e-tempF.101w))
+
+head(ash_data3_after)
+
+str(ash_data3_after)
+```
+
+
+*Step 2.1:*  1) calculate some summary statistics
+            - for each treatment pair
+               a) what is the max temp difference, at what time of the day
+               b) what is the min temp diff, at what time of day?
+               c) save to a table #as.table()
+```{r summary-stats, echo=FALSE}
+maxb_sun_100e <- max(ash_data3_before[1:4325,7])
+p_sun_100e <- which(ash_data3_before$diff_sun_100e == maxb_sun_100e)
+dtb_sun_100e <- ash_data3_before[p_sun_100e,1]
+
+#####################
+
+maxb_sun_101w <- max(ash_data3_before[1:4325,8])
+p_sun_101w <- which(ash_data3_before$diff_sun_101w == maxb_sun_101w)
+dtb_sun_101w <- ash_data3_before[p_sun_101w,1]
+
+#####################
+
+maxb_sun_103 <- max(ash_data3_before[1:4325,9])
+p_sun_103 <- which(ash_data3_before$diff_sun_103 == maxb_sun_103)
+dtb_sun_103 <- ash_data3_before[p_sun_103,1]
+
+#####################
+
+maxb_103_100e <- max(ash_data3_before[1:4325,10])
+p_103_100e <- which(ash_data3_before$diff_103_100e == maxb_103_100e)
+dtb_103_100e <- ash_data3_before[p_103_100e,1]
+
+#####################
+
+maxb_103_101w <- max(ash_data3_before[1:4325,11])
+p_103_101w <- which(ash_data3_before$diff_103_101w == maxb_103_101w)
+dtb_103_101w <- ash_data3_before[p_103_101w,1]
+
+#####################
+
+maxb_100e_101w <- max(ash_data3_before[1:4325,12])
+p_100e_101w <- which(ash_data3_before$diff_100e_101w == maxb_100e_101w)
+dtb_100e_101w <- ash_data3_before[p_100e_101w,1]
+
+max_values_b <- cbind(dtb_sun_100e, maxb_sun_100e, dtb_sun_101w, maxb_sun_101w, dtb_sun_103, maxb_sun_103, dtb_103_100e, maxb_103_100e, dtb_103_101w, maxb_103_101w, dtb_100e_101w, maxb_100e_101w)
+
+#######################################################
+
+minb_sun_100e <- min(ash_data3_before[1:4325,7])
+p2_sun_100e <- which(ash_data3_before$diff_sun_100e == minb_sun_100e)
+dtb2_sun_100e <- ash_data3_before[p2_sun_100e,1]
+
+#####################
+
+minb_sun_101w <- min(ash_data3_before[1:4325,8])
+p2_sun_101w <- which(ash_data3_before$diff_sun_101w == minb_sun_101w)
+dtb2_sun_101w <- ash_data3_before[p2_sun_101w,1]
+
+#####################
+
+minb_sun_103 <- min(ash_data3_before[1:4325,9])
+p2_sun_103 <- which(ash_data3_before$diff_sun_103 == minb_sun_103)
+dtb2_sun_103 <- ash_data3_before[p2_sun_103,1]
+
+#####################
+
+minb_103_100e <- min(ash_data3_before[1:4325,10])
+p2_103_100e <- which(ash_data3_before$diff_103_100e == minb_103_100e)
+dtb2_103_100e <- ash_data3_before[p2_103_100e,1]
+
+#####################
+
+minb_103_101w <- min(ash_data3_before[1:4325,11])
+p2_103_101w <- which(ash_data3_before$diff_103_101w == minb_103_101w)
+dtb2_103_101w <- ash_data3_before[p2_103_101w,1]
+
+#####################
+
+minb_100e_101w <- min(ash_data3_before[1:4325,12])
+p2_100e_101w <- which(ash_data3_before$diff_100e_101w == minb_100e_101w)
+dtb2_100e_101w <- ash_data3_before[p2_100e_101w,1]
+
+min_values_b <- cbind(dtb2_sun_100e, minb_sun_100e, dtb2_sun_101w, minb_sun_101w, dtb2_sun_103, minb_sun_103, dtb2_103_100e, minb_103_100e, dtb2_103_101w, minb_103_101w, dtb2_100e_101w, minb_100e_101w)
+
+##############################################################################################################
+
+maxa_sun_100e <- max(ash_data3_after[1:4325,7])
+p3_sun_100e <- which(ash_data3_after$diff_sun_100e == maxa_sun_100e)
+dtb3_sun_100e <- ash_data3_after[p3_sun_100e,1]
+
+#####################
+
+maxa_sun_101w <- max(ash_data3_after[1:4325,8])
+p3_sun_101w <- which(ash_data3_after$diff_sun_101w == maxa_sun_101w)
+dtb3_sun_101w <- ash_data3_after[p3_sun_101w,1]
+
+#####################
+
+maxa_sun_103 <- max(ash_data3_after[1:4325,9])
+p3_sun_103 <- which(ash_data3_after$diff_sun_103 == maxa_sun_103)
+dtb3_sun_103 <- ash_data3_after[p3_sun_103,1]
+
+#####################
+
+maxa_103_100e <- max(ash_data3_after[1:4325,10])
+p3_103_100e <- which(ash_data3_after$diff_103_100e == maxa_103_100e)
+dtb3_103_100e <- ash_data3_after[p3_103_100e,1]
+
+#####################
+
+maxa_103_101w <- max(ash_data3_after[1:4325,11])
+p3_103_101w <- which(ash_data3_after$diff_103_101w == maxa_103_101w)
+dtb3_103_101w <- ash_data3_after[p3_103_101w,1]
+
+#####################
+
+maxa_100e_101w <- max(ash_data3_after[1:4325,12])
+p3_100e_101w <- which(ash_data3_after$diff_100e_101w == maxa_100e_101w)
+dtb3_100e_101w <- ash_data3_after[p3_100e_101w,1]
+
+max_values_a <- cbind(dtb3_sun_100e, maxa_sun_100e, dtb3_sun_101w, maxa_sun_101w, dtb3_sun_103, maxa_sun_103, dtb3_103_100e, maxa_103_100e, dtb3_103_101w, maxa_103_101w, dtb3_100e_101w, maxa_100e_101w)
+
+#######################################################
+
+mina_sun_100e <- min(ash_data3_after[1:4325,7])
+p4_sun_100e <- which(ash_data3_after$diff_sun_100e == mina_sun_100e)
+dtb4_sun_100e <- ash_data3_after[p4_sun_100e,1]
+
+#####################
+
+mina_sun_101w <- min(ash_data3_after[1:4325,8])
+p4_sun_101w <- which(ash_data3_after$diff_sun_101w == mina_sun_101w)
+dtb4_sun_101w <- ash_data3_after[p4_sun_101w,1]
+
+#####################
+
+mina_sun_103 <- min(ash_data3_after[1:4325,9])
+p4_sun_103 <- which(ash_data3_after$diff_sun_103 == mina_sun_103)
+dtb4_sun_103 <- ash_data3_after[p4_sun_103,1]
+
+#####################
+
+mina_103_100e <- min(ash_data3_after[1:4325,10])
+p4_103_100e <- which(ash_data3_after$diff_103_100e == mina_103_100e)
+dtb4_103_100e <- ash_data3_after[p4_103_100e,1]
+
+#####################
+
+mina_103_101w <- min(ash_data3_after[1:4325,11])
+p4_103_101w <- which(ash_data3_after$diff_103_101w == mina_103_101w)
+dtb4_103_101w <- ash_data3_after[p4_103_101w,1]
+
+#####################
+
+mina_100e_101w <- min(ash_data3_after[1:4325,12])
+p4_100e_101w <- which(ash_data3_after$diff_100e_101w == mina_100e_101w)
+dtb4_100e_101w <- ash_data3_after[p4_100e_101w,1]
+
+min_values_a <- cbind(dtb4_sun_100e, mina_sun_100e, dtb4_sun_101w, mina_sun_101w, dtb4_sun_103, mina_sun_103, dtb4_103_100e, mina_103_100e, dtb4_103_101w, mina_103_101w, dtb4_100e_101w, mina_100e_101w)
+
+```
+
+
+
+*Step 2.1.1:*
+2) show some summary graphs 
+   a) plot histograms of the difference values between treatments (using ggplot facet)
+
+```{r overlapping-histograms, echo = FALSE}
+
+ash_data_diffs <- data.frame("date_time" = rep(NA, 58932), "diff_cat" = rep(NA, 58932), "diff_tempF" = rep(NA, 58932), "rem_stat" = rep(NA, 58932))
+
+ash_data_diffs$diff_cat <- c(rep("sun_100e", 4325), rep("sun_101w", 4325), rep("sun_103", 4325), rep("103_100e", 4325), rep("103_101w", 4325), rep("100e_101w", 4325), rep("sun_100e", 5497), rep("sun_101w", 5497), rep("sun_103", 5497), rep("103_100e", 5497), rep("103_101w", 5497), rep("100e_101w", 5497))
+
+ash_data_diffs$diff_cat <- as.factor(ash_data_diffs$diff_cat)
+
+ash_data_diffs$rem_stat <- c(rep("before_removal", 25950), rep("after_removal", 32982))
+
+ash_data_diffs$date_time[1:4325] <- c(ash_data3_before[,1])
+ash_data_diffs$date_time[4326:8650] <- c(ash_data3_before[,1])
+ash_data_diffs$date_time[8651:12975] <- c(ash_data3_before[,1])
+ash_data_diffs$date_time[12976:17300] <- c(ash_data3_before[,1])
+ash_data_diffs$date_time[17301:21625] <- c(ash_data3_before[,1])
+ash_data_diffs$date_time[21626:25950] <- c(ash_data3_before[,1])
+
+ash_data_diffs <- ash_data_diffs %>% mutate(date_time = ymd_hms(date_time))
+
+ash_data_diffs$date_time[25951:31447] <- c(ash_data3_after[,1])
+ash_data_diffs$date_time[31448:36944] <- (ash_data3_after[,1])
+ash_data_diffs$date_time[36945:42441] <- (ash_data3_after[,1])
+ash_data_diffs$date_time[42442:47938] <- (ash_data3_after[,1])
+ash_data_diffs$date_time[47939:53435] <- (ash_data3_after[,1])
+ash_data_diffs$date_time[53436:58932] <- (ash_data3_after[,1])
+
+
+ash_data_diffs$diff_tempF[1:4325] <- c(ash_data3_before[,7])
+ash_data_diffs$diff_tempF[4326:8650] <- c(ash_data3_before[,8])
+ash_data_diffs$diff_tempF[8651:12975] <- c(ash_data3_before[,9])
+ash_data_diffs$diff_tempF[12976:17300] <- c(ash_data3_before[,10])
+ash_data_diffs$diff_tempF[17301:21625] <- c(ash_data3_before[,11])
+ash_data_diffs$diff_tempF[21626:25950] <- c(ash_data3_before[,12])
+
+ash_data_diffs$diff_tempF[25951:31447] <- c(ash_data3_after[,7])
+ash_data_diffs$diff_tempF[31448:36944] <- c(ash_data3_after[,8])
+ash_data_diffs$diff_tempF[36945:42441] <- c(ash_data3_after[,9])
+ash_data_diffs$diff_tempF[42442:47938] <- c(ash_data3_after[,10])
+ash_data_diffs$diff_tempF[47939:53435] <- c(ash_data3_after[,11])
+ash_data_diffs$diff_tempF[53436:58932] <- c(ash_data3_after[,12])
+
+ash_data_diffs$rem_stat <- factor(ash_data_diffs$rem_stat, levels = c('before_removal','after_removal'))
+
+ggplot(data = ash_data_diffs) +
+  geom_density(mapping = aes(x = diff_tempF, y = stat(density), color = diff_cat), position = "identity", bins = 36, alpha = 0.6) +
+  facet_wrap(facets = ~ rem_stat) 
+
+ggplot(data = ash_data_diffs) +
+  geom_density(mapping = aes(x = diff_tempF, y = stat(density), color = diff_cat), position = "identity", bins = 36, alpha = 0.6) +
+  xlim(-3, 3) +
+  facet_wrap(facets = ~ rem_stat) 
+```
+               
+
+*Step 2.2:* Run overall value t-tests between the hourly averaged differences in temperature before ash removal and after 
+```{r t-test, echo = FALSE}
+ash_data3_before[4326:5497, ] <- NA
+
+t_sun_100e <- t.test(ash_data3_after$diff_sun_100e, 
+                    ash_data3_before$diff_sun_100e, paired = TRUE)
+
+psun100e <- t_sun_100e$p.value
+
+paste("p-val for sun vs 100e is ", psun100e)
+
+#########
+
+t_sun_101w <- t.test(ash_data3_after$diff_sun_101w, 
+                    ash_data3_before$diff_sun_101w, paired = TRUE)
+
+psun101w <- t_sun_101w$p.value
+
+paste("p-val for sun vs 101w is ", psun101w)
+
+#########
+
+t_sun_103 <- t.test(ash_data3_after$diff_sun_103, 
+                    ash_data3_before$diff_sun_103, paired = TRUE)
+
+psun103 <- t_sun_103$p.value
+
+paste("p-val for sun vs 103 is ", psun103)
+
+#########
+
+t_103_100e <- t.test(ash_data3_after$diff_103_100e, 
+                    ash_data3_before$diff_103_100e, paired = TRUE)
+
+p103100e <- t_103_100e$p.value
+
+paste("p-val for 103 vs 100e is ", p103100e)
+
+#########
+
+t_103_101w <- t.test(ash_data3_after$diff_103_101w, 
+                    ash_data3_before$diff_103_101w, paired = TRUE)
+
+p103101w <- t_103_101w$p.value
+
+paste("p-val for 103 vs 101w is ", p103101w)
+
+#########
+
+t_100e_101w <- t.test(ash_data3_after$diff_100e_101w, 
+                    ash_data3_before$diff_100e_101w, paired = TRUE)
+
+p100e101w <- t_100e_101w$p.value
+
+paste("p-val for 100e vs 101w is ", p100e101w)
+```
+
+
+*Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments.
+```{r bar-plot-avg-diffs, echo=FALSE}
+
+melted <- melt(ash_data_diffs, id.vars = c("diff_cat", "rem_stat", "date_time"))
+
+mean_diffs <- ddply(melted, c("diff_cat", "rem_stat"), summarise, mean = mean(value), se = sd(value))
+
+mean_diffs$diff_cat <- as.factor(mean_diffs$diff_cat)
+
+ggplot(data = mean_diffs, aes(x = diff_cat, y = mean, color = diff_cat, fill = diff_cat)) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean-se, ymax = mean+se), width = .2) +
+  facet_wrap(facets = ~rem_stat)+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
+
+*Step 4:* Make a line plot of the differences in temperature in the before and after treatments in relation to days
+    - may need to change "date_time" to day 1, 2, 3 so able to fully overlay values
+```{r line-plot-diffs, echo = FALSE}
+
+ash_data_diffs %>%
+  group_by(rem_stat) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = diff_tempF, color = diff_cat)) +
+  geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
+  geom_vline(xintercept = ymd_hms("2018-09-20 18:22:59")) 
+```
+```{r overlay-line-plots-2, echo = FALSE}
+ash_data_diffs %>% 
+  group_by(rem_stat) %>%
+  ggplot() +
+  geom_line(mapping = aes(x = date_time, y = diff_tempF, color = diff_cat)) +
+  facet_wrap(facets = ~ rem_stat) 
+```
