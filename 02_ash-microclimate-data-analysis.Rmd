@@ -106,75 +106,75 @@ str(ash_data3_after)
                b) what is the min temp diff, at what time of day?
                c) save to a table #as.table()
 ```{r summary-stats, echo=FALSE}
-maxb_sun_100e <- max(ash_data3_before[1:4325,7])
+maxb_sun_100e <- max(abs(ash_data3_before[1:4325,7]))
 p_sun_100e <- which(ash_data3_before$diff_sun_100e == maxb_sun_100e)
 dtb_sun_100e <- ash_data3_before[p_sun_100e,1]
 
 #####################
 
-maxb_sun_101w <- max(ash_data3_before[1:4325,8])
+maxb_sun_101w <- max(abs(ash_data3_before[1:4325,8]))
 p_sun_101w <- which(ash_data3_before$diff_sun_101w == maxb_sun_101w)
 dtb_sun_101w <- ash_data3_before[p_sun_101w,1]
 
 #####################
 
-maxb_sun_103 <- max(ash_data3_before[1:4325,9])
+maxb_sun_103 <- max(abs(ash_data3_before[1:4325,9]))
 p_sun_103 <- which(ash_data3_before$diff_sun_103 == maxb_sun_103)
 dtb_sun_103 <- ash_data3_before[p_sun_103,1]
 
 #####################
 
-maxb_103_100e <- max(ash_data3_before[1:4325,10])
-p_103_100e <- which(ash_data3_before$diff_103_100e == maxb_103_100e)
+maxb_103_100e <- max(abs(ash_data3_before[1:4325,10]))
+p_103_100e <- which(ash_data3_before$diff_103_100e == -maxb_103_100e)
 dtb_103_100e <- ash_data3_before[p_103_100e,1]
 
 #####################
 
-maxb_103_101w <- max(ash_data3_before[1:4325,11])
-p_103_101w <- which(ash_data3_before$diff_103_101w == maxb_103_101w)
+maxb_103_101w <- max(abs(ash_data3_before[1:4325,11]))
+p_103_101w <- which(ash_data3_before$diff_103_101w == -maxb_103_101w) # negative difference
 dtb_103_101w <- ash_data3_before[p_103_101w,1]
 
 #####################
 
-maxb_100e_101w <- max(ash_data3_before[1:4325,12])
-p_100e_101w <- which(ash_data3_before$diff_100e_101w == maxb_100e_101w)
+maxb_100e_101w <- max(abs(ash_data3_before[1:4325,12]))
+p_100e_101w <- which(ash_data3_before$diff_100e_101w == -maxb_100e_101w)
 dtb_100e_101w <- ash_data3_before[p_100e_101w,1]
 
 max_values_b <- cbind(dtb_sun_100e, maxb_sun_100e, dtb_sun_101w, maxb_sun_101w, dtb_sun_103, maxb_sun_103, dtb_103_100e, maxb_103_100e, dtb_103_101w, maxb_103_101w, dtb_100e_101w, maxb_100e_101w)
 
 #######################################################
 
-minb_sun_100e <- min(ash_data3_before[1:4325,7])
+minb_sun_100e <- min(abs(ash_data3_before[1:4325,7]))
 p2_sun_100e <- which(ash_data3_before$diff_sun_100e == minb_sun_100e)
 dtb2_sun_100e <- ash_data3_before[p2_sun_100e,1]
 
 #####################
 
-minb_sun_101w <- min(ash_data3_before[1:4325,8])
+minb_sun_101w <- min(abs(ash_data3_before[1:4325,8]))
 p2_sun_101w <- which(ash_data3_before$diff_sun_101w == minb_sun_101w)
 dtb2_sun_101w <- ash_data3_before[p2_sun_101w,1]
 
 #####################
 
-minb_sun_103 <- min(ash_data3_before[1:4325,9])
+minb_sun_103 <- min(abs(ash_data3_before[1:4325,9]))
 p2_sun_103 <- which(ash_data3_before$diff_sun_103 == minb_sun_103)
 dtb2_sun_103 <- ash_data3_before[p2_sun_103,1]
 
 #####################
 
-minb_103_100e <- min(ash_data3_before[1:4325,10])
+minb_103_100e <- min(abs(ash_data3_before[1:4325,10]))
 p2_103_100e <- which(ash_data3_before$diff_103_100e == minb_103_100e)
 dtb2_103_100e <- ash_data3_before[p2_103_100e,1]
 
 #####################
 
-minb_103_101w <- min(ash_data3_before[1:4325,11])
+minb_103_101w <- min(abs(ash_data3_before[1:4325,11]))
 p2_103_101w <- which(ash_data3_before$diff_103_101w == minb_103_101w)
 dtb2_103_101w <- ash_data3_before[p2_103_101w,1]
 
 #####################
 
-minb_100e_101w <- min(ash_data3_before[1:4325,12])
+minb_100e_101w <- min(abs(ash_data3_before[1:4325,12]))
 p2_100e_101w <- which(ash_data3_before$diff_100e_101w == minb_100e_101w)
 dtb2_100e_101w <- ash_data3_before[p2_100e_101w,1]
 
@@ -182,75 +182,75 @@ min_values_b <- cbind(dtb2_sun_100e, minb_sun_100e, dtb2_sun_101w, minb_sun_101w
 
 ##############################################################################################################
 
-maxa_sun_100e <- max(ash_data3_after[1:4325,7])
+maxa_sun_100e <- max(abs(ash_data3_after[1:4325,7]))
 p3_sun_100e <- which(ash_data3_after$diff_sun_100e == maxa_sun_100e)
 dtb3_sun_100e <- ash_data3_after[p3_sun_100e,1]
 
 #####################
 
-maxa_sun_101w <- max(ash_data3_after[1:4325,8])
+maxa_sun_101w <- max(abs(ash_data3_after[1:4325,8]))
 p3_sun_101w <- which(ash_data3_after$diff_sun_101w == maxa_sun_101w)
 dtb3_sun_101w <- ash_data3_after[p3_sun_101w,1]
 
 #####################
 
-maxa_sun_103 <- max(ash_data3_after[1:4325,9])
+maxa_sun_103 <- max(abs(ash_data3_after[1:4325,9]))
 p3_sun_103 <- which(ash_data3_after$diff_sun_103 == maxa_sun_103)
 dtb3_sun_103 <- ash_data3_after[p3_sun_103,1]
 
 #####################
 
-maxa_103_100e <- max(ash_data3_after[1:4325,10])
-p3_103_100e <- which(ash_data3_after$diff_103_100e == maxa_103_100e)
+maxa_103_100e <- max(abs(ash_data3_after[1:4325,10]))
+p3_103_100e <- which(ash_data3_after$diff_103_100e == -maxa_103_100e)
 dtb3_103_100e <- ash_data3_after[p3_103_100e,1]
 
 #####################
 
-maxa_103_101w <- max(ash_data3_after[1:4325,11])
-p3_103_101w <- which(ash_data3_after$diff_103_101w == maxa_103_101w)
+maxa_103_101w <- max(abs(ash_data3_after[1:4325,11]))
+p3_103_101w <- which(ash_data3_after$diff_103_101w == -maxa_103_101w)
 dtb3_103_101w <- ash_data3_after[p3_103_101w,1]
 
 #####################
 
-maxa_100e_101w <- max(ash_data3_after[1:4325,12])
-p3_100e_101w <- which(ash_data3_after$diff_100e_101w == maxa_100e_101w)
+maxa_100e_101w <- max(abs(ash_data3_after[1:4325,12]))
+p3_100e_101w <- which(ash_data3_after$diff_100e_101w == -maxa_100e_101w)
 dtb3_100e_101w <- ash_data3_after[p3_100e_101w,1]
 
 max_values_a <- cbind(dtb3_sun_100e, maxa_sun_100e, dtb3_sun_101w, maxa_sun_101w, dtb3_sun_103, maxa_sun_103, dtb3_103_100e, maxa_103_100e, dtb3_103_101w, maxa_103_101w, dtb3_100e_101w, maxa_100e_101w)
 
 #######################################################
 
-mina_sun_100e <- min(ash_data3_after[1:4325,7])
+mina_sun_100e <- min(abs(ash_data3_after[1:4325,7]))
 p4_sun_100e <- which(ash_data3_after$diff_sun_100e == mina_sun_100e)
 dtb4_sun_100e <- ash_data3_after[p4_sun_100e,1]
 
 #####################
 
-mina_sun_101w <- min(ash_data3_after[1:4325,8])
+mina_sun_101w <- min(abs(ash_data3_after[1:4325,8]))
 p4_sun_101w <- which(ash_data3_after$diff_sun_101w == mina_sun_101w)
 dtb4_sun_101w <- ash_data3_after[p4_sun_101w,1]
 
 #####################
 
-mina_sun_103 <- min(ash_data3_after[1:4325,9])
+mina_sun_103 <- min(abs(ash_data3_after[1:4325,9]))
 p4_sun_103 <- which(ash_data3_after$diff_sun_103 == mina_sun_103)
 dtb4_sun_103 <- ash_data3_after[p4_sun_103,1]
 
 #####################
 
-mina_103_100e <- min(ash_data3_after[1:4325,10])
+mina_103_100e <- min(abs(ash_data3_after[1:4325,10]))
 p4_103_100e <- which(ash_data3_after$diff_103_100e == mina_103_100e)
 dtb4_103_100e <- ash_data3_after[p4_103_100e,1]
 
 #####################
 
-mina_103_101w <- min(ash_data3_after[1:4325,11])
+mina_103_101w <- min(abs(ash_data3_after[1:4325,11]))
 p4_103_101w <- which(ash_data3_after$diff_103_101w == mina_103_101w)
 dtb4_103_101w <- ash_data3_after[p4_103_101w,1]
 
 #####################
 
-mina_100e_101w <- min(ash_data3_after[1:4325,12])
+mina_100e_101w <- min(abs(ash_data3_after[1:4325,12]))
 p4_100e_101w <- which(ash_data3_after$diff_100e_101w == mina_100e_101w)
 dtb4_100e_101w <- ash_data3_after[p4_100e_101w,1]
 
@@ -393,6 +393,23 @@ ggplot(data = mean_diffs, aes(x = diff_cat, y = mean, color = diff_cat, fill = d
         axis.ticks.x=element_blank())
 ```
 
+```{r box-plot-avg-diffs, echo=FALSE}
+
+melted <- melt(ash_data_diffs, id.vars = c("diff_cat", "rem_stat", "date_time"))
+
+mean_diffs <- ddply(melted, c("diff_cat", "rem_stat"), summarise, mean = mean(value), se = sd(value))
+
+mean_diffs$diff_cat <- as.factor(mean_diffs$diff_cat)
+mean_diffs$sensor_differences <- as.factor(mean_diffs$diff_cat)
+
+ggplot(data = mean_diffs, aes(x = sensor_differences, y = mean, color = sensor_differences, fill = sensor_differences)) +
+  geom_boxplot(stat = 'boxplot') +
+  geom_errorbar(aes(ymin = mean-se, ymax = mean+se), width = .2) +
+  geom_hline(yintercept = 0) +
+  facet_wrap(facets = ~rem_stat)+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
 
 *Step 4:* Make a line plot of the differences in temperature in the before and after treatments in relation to days
     - may need to change "date_time" to day 1, 2, 3 so able to fully overlay values
@@ -401,10 +418,11 @@ ggplot(data = mean_diffs, aes(x = diff_cat, y = mean, color = diff_cat, fill = d
 ash_data_diffs %>%
   group_by(rem_stat) %>%
   ggplot() +
-  geom_line(mapping = aes(x = date_time, y = diff_tempF, color = diff_cat)) +
+  geom_line(mapping = aes(x = date_time, y = diff_tempF, color = diff_cat), size =0.3) +
   geom_vline(xintercept = ymd_hms("2018-09-20 00:04:00")) + 
   geom_vline(xintercept = ymd_hms("2018-09-20 18:22:59")) 
 ```
+
 ```{r overlay-line-plots-2, echo = FALSE}
 ash_data_diffs %>% 
   group_by(rem_stat) %>%

@@ -4,11 +4,16 @@ author: "Deidre Jaeger"
 date: "11/9/2018"
 output: pdf_document
 ---
+
+??? add introduction
+
 **Research question:** How is microclimate impacted by ash (*Fraxinus sp.*) removal? 
 
-**Hypothesis:** Air temperature will increase at the location of the removed ash trees (#100e and 101w) due to increased solar radiation and decreasing shade and evapotranspiration.
+**Hypothesis:** Air temperature will increase at the location of the removed ash trees (#100e and 101w) due to increased solar radiation and decreasing shade and evapotranspiration. 
 
 **Methods:** Air temperature was measured in four locations along Boulder creek (Photo 1.) from September 17-24. Removal of the adjacent ash trees #100e and 101w occured on September 20th between 8am - 11am.
+
+??? add diagram of study design
 
 
 ```{r global_options, include=FALSE, echo=FALSE}
@@ -273,7 +278,7 @@ str(ash_data)
 
 ```
 
-```{r view-histograms-by-sensor, results = TRUE, fig.cap = "Figure 1. Histograms of the temperature value distributions from each sensor during each treatment phase"}
+```{r view-histograms-by-sensor, results = TRUE, fig.cap = "Figure 1. Temperature value frequency distributions from each sensor during each treatment phase"}
 
 ash_data %>% # define date
   ggplot() +
@@ -282,6 +287,7 @@ ash_data %>% # define date
   facet_grid(facets = sensor_name ~ ash_removal) # define which variables to panel vertical and horizontal graphs with
 
 ```
+Figure 1. 
 
 ```{r view-time-series-lineplot, results = TRUE, fig.cap = "Figure 2. Time series plot showing control and treatment sensors over the study duration, Sept 17- Sept 24, 2018. Black vertical lines indicate time of tree removal, treatment tree sensors were not logging during this time removal time"}
 
@@ -382,4 +388,101 @@ ggplot(data = ash_data) +
   facet_wrap(facets = ~ sensor_name)
 ```
 
+Next Steps:
 
+- could standardize all the temps by subtracting from another locaiton weather station. 
+
+```{r find-max-values}
+ash_data %>%
+  filter(ash_removal == "before_removal") %>% 
+           group_by(sensor_name) %>% 
+           filter(tempF == max("tempF")) 
+     
+# Look at the max values for the study duration
+# before removal by sensor
+ash_data %>%
+  filter(ash_removal == "before_removal") %>% 
+           group_by(sensor_name) %>% 
+           arrange( desc(tempF)) %>%
+            slice(1)
+
+# top value timeframe comparison
+max_before <- ash_data %>%
+  filter(date_time == "2018-09-17 6:02:59") 
+
+
+# after removal by sensor
+ash_data %>%
+  filter(ash_removal == "after_removal") %>% 
+           group_by(sensor_name) %>% 
+           arrange( desc(tempF)) %>%
+            slice(1) 
+
+# top value timeframe comparison
+ max_after <- ash_data %>% 
+        filter(date_time == "2018-09-23 7:22:59" | date_time == "2018-09-23 7:22:21" )  # bc the sensors weren't logging every minute at the same second mark
+
+
+max_vals <- rbind(max_before, max_after)
+max_vals$alph_stat <- factor(max_vals$ash_removal, levels= c("before_removal", "after_removal", "during_removal"))
+
+
+
+```
+
+```{r barplot-max-values}
+max_vals %>%
+  group_by(ash_removal) %>% 
+  ggplot() +
+  geom_bar(mapping = aes(x = sensor_name, y = tempF, fill= sensor_name), 
+           stat= "identity") +
+           coord_cartesian(ylim=c(82,92)) +
+  geom_text(aes(label = tempF, x = sensor_name, y = tempF, fill= sensor_name)) +
+  facet_grid(alph_stat ~ .)
+```
+
+
+```{r find-min-values}
+
+     # Look at the max values for the study duration
+# before removal by sensor
+ash_data %>%
+  filter(ash_removal == "before_removal") %>% 
+           group_by(sensor_name) %>% 
+           arrange(tempF) %>%
+            slice(1)
+
+# top value timeframe comparison
+min_before <- ash_data %>%
+  filter(date_time == "2018-09-19 1:25:59") 
+
+
+# after removal by sensor
+ash_data %>%
+  filter(ash_removal == "after_removal") %>% 
+           group_by(sensor_name) %>% 
+           arrange(tempF) %>%
+            slice(1) 
+
+# top value timeframe comparison
+ min_after <- ash_data %>% 
+        filter(date_time == "2018-09-22 1:12:59" | date_time == "2018-09-22 1:12:21" )  # bc the sensors weren't logging every minute at the same second mark
+
+
+min_vals <- rbind(min_before, min_after)
+min_vals$alph_stat <- factor(min_vals$ash_removal, levels= c("before_removal", "after_removal", "during_removal"))
+
+
+
+```
+
+```{r barplot-max-values}
+min_vals %>%
+  group_by(ash_removal) %>% 
+  ggplot() +
+  geom_bar(mapping = aes(x = sensor_name, y = tempF, fill= sensor_name), 
+           stat= "identity") +
+           coord_cartesian(ylim=c(42,58)) +
+  geom_text(aes(label = tempF, x = sensor_name, y = tempF, fill= sensor_name)) +
+  facet_grid(alph_stat ~ .)
+```
