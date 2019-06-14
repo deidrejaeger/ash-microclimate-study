@@ -1,21 +1,27 @@
 ---
 title: "Emerald Ash Borer related tree removal and implications for urban heat: a pilot field study"
-author: "Deidre Jaeger, Phd Student University of Colorado- Boulder, with support from Amanda Looze, B.S. Ecology, Mechanical Engineering"
+author: "Deidre Jaeger, Phd Candidate Ecology and Evolutionary Biology, University of Colorado- Boulder, Amanda Looze, B.S. Ecology, Mechanical Engineering, University of Colorado- Boulder"
 date: "2/28/2019"
-output: html_document
+output: pdf_document
+header-includes:
+- \usepackage{caption}
+- \captionsetup[figure]{labelformat=empty}
 ---
 
-**Abstract:** With increasing in global air temperatures as well as increased urbanization, cities are needing to incorporate innovative urban heat mitigation into their strategic sustainability plans. Urban tree canopies help mitigate urban heat through evaporative cooling and shading and are valued for providing numerous ecosystem services. In Boulder, Colorado, ash (**Fraxinus sp.**) trees make up around 20% of Boulder's urban forest. Emerald ash borer (**Agrilus planipennis**) has been detected and puts over 20% of the urban canopy at a high likelihood of beetle infestation and mortality. The loss of these mature ash trees will significantly reduce urban shade, and we hypothesize there may be a detectable increase in local air temperature after ash tree removal. The effects of ash removal on local microclimates have not been studied in Colorado and this summer 2018 study is expected to give insight to the immediate changes in local weather that residents and wildlife may experience with significant urban forest canopy loss. We surveyed air temperature in an exploratory pilot study in Boulder, Colorado in 2018 to look at the immediate impact of ash removal on air temperature. Findings show 
+**Abstract:** Urban tree canopies help mitigate urban heat through evaporative cooling and shading and are valued for providing numerous ecosystem services. In Boulder, Colorado, 25% of the urban forest are composed of ash (*Fraxinus americana* and *F. pennsylvanica*) trees. Emerald ash borer (*Agrilus planipennis*) has migrated from the eastern United States to Boulder, posing a significant threat to canopy loss and reduction in ecosystem services such as reduced urban shade and cooling. In Septemeber 2018, we surveyed air temperature in an exploratory pilot study in Boulder, Colorado in to look at the immediate impact of ash removal on air temperature at one site along Boulder Creek. We hypothesize there may be a detectable increase in local air temperature after ash tree removal. Results showed a 1 degree F increase  in ambient air temperature 
 
-With a larger study, we may be able to provide predictions for local urban heat dynamics under change tree canopy, as well as baseline values for restoration and intermediate intervention plans for shade.  
+This research is expected to give insight to the immediate changes in local weather that residents and wildlife may experience with significant urban forest canopy loss. With a larger study, we may be able to provide predictions for local urban heat dynamics under change tree canopy, as well as baseline values for restoration and intermediate intervention plans for shade.  
 
+**Introduction:** 
+With increasing in global air temperatures as well as increased urbanization, cities are needing to incorporate innovative urban heat mitigation into their strategic sustainability plans. Urban tree canopies help mitigate urban heat through evaporative cooling and shading and are valued for providing numerous ecosystem services (Moss et al. 2019). Areas of less tree canopy and more impervious surface exposure have increased thermal infrared radiation of 6.9-9.4 C (Napoli et al. 2016). Surface radiation typically has a higher degree of contrast between sun and shade relative to air temperature, but air temperature is what is experienced by humans and more relevant to thermal comfort and health.
 
+In Boulder, Colorado, ash (*Fraxinus sp.*) trees make up over 25% of Boulder's urban forest (City of Boulder Strategic Plan 2018). Emerald ash borer (*Agrilus planipennis*) has been detected and puts over a quarter of the urban canopy at risk of beetle infestation and mortality unless chemical treatments were administered proactivly. The loss of these mature ash trees will significantly reduce urban shade, and we hypothesize there may be a detectable increase in local air temperature after ash tree removal. The effects of ash removal on local microclimates have not been studied in Colorado and this 6 day study in September 2018 is expected to give insight to the immediate changes in local weather that residents and wildlife may experience with significant urban forest canopy loss.
 
 **Research question:** How is ambient air temperature immediately impacted by green ash tree (*Fraxinus americana*) removal? 
 
 **Hypothesis:** Air temperature will increase at the location of the removed ash trees (#100e and 101w) due to increased solar radiation and decreasing shade and evapotranspiration.
 
-**Methods:** Air temperature was measured in four locations along Boulder creek (Photo 1.) from September 17-24. Removal of the adjacent ash trees #100e and 101w occured on September 20th between 8am - 11am.
+**Methods:** Air temperature was measured at three sites along Boulder creek (Figure 1) from September 17-24. The first site had two air temperature sensors each under adjacent (2.5 m distance) ash trees: #100e 40.011491,	-105.263795, DBH = 16 inches, dripline width = 41 ft) and 101w (40.01148, -105.263828, DBH = 13.1 inches, dripline width = 24 ft) that were removed at the trunk base on September 20th between 8am - 11am (Figure 2). Two additional sensor sites served as control: one site under a green ash tree that was not removed (#103 40.011222,	-105.26472, DBH = 9.06 inches, dripline width = 28 ft, Figure 3a) and ane site in full sun ( 40.011496,	-105.263789, Figure 3b). The two treatment and one control trees had between 65-75% of leaf canopy loss. The treatment and control sites were approximately 80 meters apart. Air temperature was logged every minute using HOBO MX2201 sensors. Data was analyzed in R software V 1.1.456 using ANOVA and Tukey's HSD tests.
 
 
 ```{r global_options, include=FALSE, echo=FALSE}
@@ -36,73 +42,123 @@ library(grid) # libraries for images
 options(stringsAsFactors = FALSE) # so that dates read in as character strings not factors (factors are troublesome for converting to dates)
 ```
  
-```{r photo1, echo=FALSE, fig.cap= "Photo 1. Aerial view of the study area, North of Boulder Creek, Boulder, Colorado."}
+```{r photo1, echo=FALSE, fig.cap= "Figure 1. Aerial view of the study area, North of Boulder Creek, Boulder, Colorado."}
 img1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/aerial_map_study_area.png")
  grid.raster(img1)
 
 ```
 
-```{r photo2, echo=FALSE, fig.cap= "Photo 2. Photo of treatment site where two green ash trees (Fraxinus americana) infected with Emerald Ash Borer beetles to be removed Sept 24, 2018 from Boulder Creek, Boulder, Colorado. a) showstreatment tree 100e and b) shows treatment tree 101w. "}
+```{r photo2, echo=FALSE, fig.cap= "Figure 2. Photo of treatment site where two green ash trees (Fraxinus americana) infected with Emerald Ash Borer beetles to be removed Sept 24, 2018 from Boulder Creek, Boulder, Colorado. a) showstreatment tree 100e and b) shows treatment tree 101w. "}
 img2 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/Slide1.png")
  grid.raster(img2)
 
 ```
 
 
-```{r photo3, echo=FALSE, fig.cap= "Photo 3. a) shows the control tree (Fraxinus americana) that was not removed during the study and b) shows the control site with no trees along Boulder Creek, Boulder, Colorado."}
+```{r photo3, echo=FALSE, fig.cap= "Figure 3. Study site trees where a) shows the control tree (Fraxinus americana) that was not removed during the study and b) shows the control site with no trees along Boulder Creek, Boulder, Colorado."}
 img3 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/Slide2.png")
  grid.raster(img3)
 
 ```
 
-```{r figure4, echo=FALSE, fig.cap= "Figure 5. Temperature values from the four sensors under the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control with no tree canopy showing before tree removal (Sep 16-19, 2019) and after removal (Sep 21-24, 2019)."}
+
+**Results:**
+
+Analysis of variance (ANOVA) of mean hourly air temperature values among the two treatment ash trees that were removed (101w, 100e) and two controls trees (103, sun) before tree removal (Sep 16-19, 2019) and after removal (Sep 21-24, 2019) showed significant differences [F(11, 58920) = 2375, p < 0.001] (Figure 4). There was the smallest difference in mean hourly air temperatures between the two treatment trees, and the greatest difference between the sun and ash tree controls. Time series plots show changes in the differences among treatment and control groups (Figure 5) and with different maximum and minimum values observed among control and treatment sensors from the raw time series (Figure 6).
+
+The air temperture under the treatment trees increased by an average of 0.88 F relative to the sun control sensor. A Tukey's post-hoc test showed the mean hourly air temperature difference between the 100e treatment tree and the sun control decreased by 1.023 F after tree removal (before: mean difference = 1.300 F, SE = 0.048, after: mean difference =  0.277 F, SE = 0.025; p < 0.001). Similarly, the mean hourly air temperature difference between the 101w treatment tree and the sun control decreased by 0.753 F after tree removal (before: mean difference = 0.939 F, SE = 0.044, after: mean difference =  0.186 F, SE = 0.024; p < 0.001). 
+
+The air temperature under the treatment trees increased by an avereage of 0.337 F relative to the green ash control sensor. Tukey's post-hoc test showed the mean hourly air temperature difference between the 100e treatment tree and the 103 ash control increased by 0.472 F after tree removal (before: mean difference = -1.194 F, SE = 0.020, after: mean difference =  -1.667 F, SE = 0.022; p < 0.001). Similarly, the mean hourly air temperature difference between the 101w treatment tree and the sun control increased by 0.202 F after tree removal (before: mean difference = -1.555 F, SE = 0.020, after: mean difference =  -1.758 F, SE = 0.027; p < 0.001).
+
+The air temperature between the sun and shaded ash tree control sensor locations was on average 2.219 F higher at the sun sensor. Tukey's post-hoc test showed the mean hourly air temperature difference between the sun control and the 103 ash control was 2.492 F (SE = 0.020, p < 0.001) before tree removal. The mean hourly air temperature difference between the sun control and the 103 ash control decreased by 0.55 F after tree removal (mean difference = 1.944 F, SE = 0.032, p < 0.001)
+
+
+```{r figure4, echo=FALSE, fig.cap= "Figure 4. Mean difference in hourly air temperature among sensors pairs for before ash removal (Sep 16-19, 2019) and after (Sep 21-24, 2019) the ash removal"}
+fig1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/final_main_diff_plot.png")
+ grid.raster(fig1)
+
+```
+
+
+
+```{r figure5, echo=FALSE, fig.cap= "Figure 5. Time series of the differences in temperature among sensor pairs for before tree removal (Sep 17-20, 2019) and after removal (Sep 21-24, 2019). Time between the two black vertical lines represents treatment tree removal and data was not recorded."}
+fig3 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/timeseries-before-after.png")
+ grid.raster(fig3)
+
+```
+
+
+
+```{r figure6, echo=FALSE, fig.cap= "Figure 6. Temperature values from the four sensors under the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control before tree removal (Sep 16-19, 2019) and after removal (Sep 21-24, 2019)."}
 fig4 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/before-after-raw-data.png")
  grid.raster(fig4)
 
 ```
 
-Differences in temperature across the study period are not striking among the four sensors, but comparison of the control sun sensor with the control tree 103 sensor shows higher maximum temperature values reached by the sun sensor. 
 
-```{r figure5, echo=FALSE, fig.cap= "Figure 5. Temperature data from the four sensors under the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control with no tree canopy showing before tree removal, during removal, and after removal"}
+
+**Discussion**
+Overall, we found that the removal of the two ash trees had a measurable and significant effect on ambient air temperature. Removal of the two green ash trees resulted in an 0.88 F increase of mean hourly temperature and the average difference between the sun and shade control trees was 2.219 F higher at the sun sensor. This is a reasonable results and past study of air temperature under 10 tree species in Taiwan parks demonstrated that unshaded open space is 1.152-4.05 F higher compared to shaded similar areas with tree canopies (Lin and Yin 2010). In the case of our study location at Boulder Creek, there may be "creek effect" where all the trees are within a buffer area where the water and relatively dense vegetation along the creek shore may be partially obscuring the air temperature differences after ash tree removal. 
+
+
+Other metrics could be used to further explore the effect of tree canopy and associated removal on air temperature. The analysis presented in this study focused on overal mean differences before and after the tree removal. Daily aggregates of air temperature or minimum and maximum values (see Figure S1 and S2) could also be analyzed to further tease out before and after ash removal differences. The air temperatures under the treatment trees that were 2.5 meters apart were slightly different. The 101w tree logging higher maximum temperatures than the 100e treatment tree (Figure S1). There was also a difference in mean hourly temperature between the the two treatment trees and the control tree before removal. The effect of the Boulder Creek microclimate or the position of the sensor relative to remaining vegetation may be partially explaining the difference between the two treatment sensors and among the treatment and green ash control sensor. Further analysis of this data to explore diurnal/nocturnal trends could illuminate more about these differences. 
+
+
+Future studies could extend this experimental design to encompass greater a number of replicates and environemntal site diversity to gain more information about the spatial and temporal dynamics of tree shading. With the loss of so much *Fraxinus sp.* canopy in Boulder, existing air temperature sensors could be leveraged to try and calculate the temperature differences before and after ash tree removal if a suitable control sensor could be located. Future research could compare trees that have the majority of their canopy foliage lost compared to trees displaying less advanced symptoms of the emerald ash borer to compare percent of canopy lost to air temperature changes. 
+
+
+**Acknowledgements**
+Thank you to Vince Aquino, the University of Colorado - Boulder campus arborist for participating in the tree selection for the study, gaining utlity line clearance for the sensor post installments, and coordinating the removal of the ash trees. Thank you to Amanda Looze for assistance with tree measurements and data analysis. We would also like to thank the Center for Sustainable Landscapes and Communities for their adivsing and support on this project. 
+
+
+**References**
+
+City of Boulder Strategic Plan, Davey Resource Group, 2018. https://www-static.bouldercolorado.gov/docs/Boulder_UFSP_v2018_06_06-1-201806111602.pdf
+
+Lin, B. S., & Lin, Y. J. (2010). Cooling effect of shade trees with different characteristics in a subtropical urban park. HortScience, 45(1), 83–86.
+
+Moss, J. L., Doick, K. J., Smith, S., & Shahrestani, M. (2019). Influence of evaporative cooling by urban forests on cooling demand in cities. Urban Forestry & Urban Greening, 37, 65–73. https://doi.org/10.1016/j.ufug.2018.07.023
+
+Napoli, M., Massetti, L., Brandani, G., Petralli, M., & Orlandini, S. (2016). Modeling Tree Shade Effect on Urban Ground Surface Temperature. Journal of Environment Quality, 45(1), 146. https://doi.org/10.2134/jeq2015.02.0097
+
+
+
+
+
+
+
+**Supplementary Figures**
+
+
+```{r, echo=FALSE, fig.cap= "Figure S1. Maximum temperature values for the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control with no tree canopy before treatment tree removal on September 17 at 1:22pm and after removal on September 22, 7:12am."}
+fig6 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/raw-max-vals-before-after.png")
+ grid.raster(fig6)
+ 
+ # By zooming into the maximum values logged during the before removal period on September 17 at 1:22pm, we see the sun sensor logged a maximum temperature of 90.9 F, and the treatment and control tree sensors were approximately 6-7 degrees F less. After removal, the sun sensor still logged the highest maximum temperature on September 22, 7:12am at 88.8 F, and the control 103 tree had the lowest temperatue at that time 84.5 F. The treatment trees, however were less than 1 degree higher than the control tree. 
+```
+
+
+
+```{r, echo=FALSE, fig.cap= "Figure S2. Minimum temperature values for the two treatment ash trees (101w, 100e), the control ash tree (103), and the sun control before removal on Sept 19 at 7:25am and after removal on on September 22 at 7:12am"}
+fig7 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/raw-temp-min-vals2.png")
+ grid.raster(fig7)
+ 
+ # By zooming into the minimum values logged during the after removal period on September 19 at 7:25am, we see the control tree sensor logged the lowest temperature at 54.39 degrees F, however the sun and treatment tree sensor were all 1-2 degrees higher than the control tree. After removal, the control tree sensor still logged the lowest minimum temperature on September 22, 7:12am at 43.58 F, with the sun and treatment trees within about 1 degree of the control tree.  
+```
+
+
+```{r, echo=FALSE, fig.cap= "Figure S3. Temperature data from the four sensors under the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control with no tree canopy showing before tree removal, during removal, and after removal."}
 fig5 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/before-during-after-hist.png")
  grid.raster(fig5)
 
 ```
-Here, we see that there may be some noticable variation between the two treatment trees between before and after removal, but it is difficult to see clear differences at this full data scale. We can see that throughout the study duration, the sun sensor logged the highest values of the four sensors. 
-
-```{r figure6, echo=FALSE, fig.cap= "Figure 6. Maximum temperature values for the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control with no tree canopy on September 17 at 1:22pm"}
-fig6 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/raw-max-vals-before-after.png")
- grid.raster(fig6)
-```
-By zooming into the maximum values logged during the before removal period on September 17 at 1:22pm, we see the sun sensor logged a maximum temperature of 90.9 F, and the treatment and control tree sensors were approximately 6-7 degrees F less. After removal, the sun sensor still logged the highest maximum temperature on September 22, 7:12am at 88.8 F, and the control 103 tree had the lowest temperatue at that time 84.5 F. The treatment trees, however were less than 1 degree higher than the control tree. 
 
 
-```{r figure7, echo=FALSE, fig.cap= "Figure 7. Minimum temperature values for the two treatment ash trees (101w, 100e), the control ash tree (103), and the sun control before removal on Sept 19 at 7:25am and after removal on on September 22 at 7:12am"}
-fig7 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/raw-temp-min-vals2.png")
- grid.raster(fig7)
-```
-By zooming into the minimum values logged during the after removal period on September 19 at 7:25am, we see the control tree sensor logged the lowest temperature at 54.39 degrees F, however the sun and treatment tree sensor were all 1-2 degrees higher than the control tree. After removal, the control tree sensor still logged the lowest minimum temperature on September 22, 7:12am at 43.58 F, with the sun and treatment trees within about 1 degree of the control tree.  
-
-
-```{r figure2, echo=FALSE, fig.cap= "Figure 3. Densities of the difference in temperature among sensor pairs."}
+```{r, echo=FALSE, fig.cap= "Figure S4. Densities of the difference in temperature among sensor pairs."}
 fig2 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/site_diffs_before_after.png")
  grid.raster(fig2)
+ 
+ # The difference among the control tree and treatment trees is unexpected, with the treatment trees being most frequently warmer by approximately 1 degree than the control tree before removal and less than a degree after removal, however a slight overal shift of the This suggests that temperature differences in ash removal may not strongly differ over the course of a day, but the extreme values early in the morning and midday may be the greatest source of differences in the course of tree removal. 
 
 ```
-If we look at the differences in temperature among each pair of sensors, we see that 100e and 101w treatment trees most often have a difference in temperature of 0 degrees (red line), which is to be expected because they are adjacent and receiving the same removal treatment. In both the before and after removal period, temperature is most often higher by about 0.5 degree in the sun control compared to the control tree (pink line). The treatment trees were most frequently 1-2 degrees cooler than the sun control before the removal, and 0-1 degrees cooler after removal (turquoise and blue lines). The difference among the control tree and treatment trees is unexpected, with the treatment trees being most frequently warmer by approximately 1 degree than the control tree before removal and less than a degree after removal, however a slight overal shift of the This suggests that temperature differences in ash removal may not strongly differ over the course of a day, but the extreme values early in the morning and midday may be the greatest source of differences in the course of tree removal. 
-
-
-```{r figure1, echo=FALSE, fig.cap= "Figure 2. Mean difference among sensors pairs for before and after the ash removal."}
-fig1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/boxplot_mean_diffs.png")
- grid.raster(fig1)
-
-```
-In this figure, we can more clearly see see that the sun sensor was on average warmer than the control tree (pink), treatment trees (blue and turqoise) both before and after removal. The sun control was 1-2 degrees warmer on average than the treatment trees before the removal, and only 0-1 degrees warmer on average after the removal of the ash trees. There was a slight increase(<1 degree F) in temperature on average when comparing the before and after removal differences between the control trees and treatment trees (yellow and green). We see the two treatment trees are the most similar, with close to zero difference in average temperatures before and after removal. 
-
-```{r figure3, echo=FALSE, fig.cap= "Figure 4. Time series of the differences in temperature among sensor pairs for before tree removal (Sep 17-20, 2019) and after removal (Sep 21-24, 2019)"}
-fig3 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/timeseries-before-after.png")
- grid.raster(fig3)
-
-```
-Finally, we see when looking at the differences among sensor pairs that amidst daily temperature fluctuation, it is almost always warmer in the sun than under the shade of the nearby control ash tree. The greatest differences are seen between the sun and control trees throughout the study duration, and the treatment and control trees after removal. 
 

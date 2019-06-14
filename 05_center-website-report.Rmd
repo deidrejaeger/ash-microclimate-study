@@ -1,0 +1,78 @@
+---
+title: "Emerald Ash Borer related tree removal and implications for urban heat: a pilot field study"
+author: "Deidre Jaeger, Phd Student University of Colorado- Boulder, Amanda Looze, B.S. Ecology, Mechanical Engineering"
+date: "2/28/2019"
+output: pdf_document
+---
+
+**Abstract:** Urban tree canopies help mitigate urban heat through evaporative cooling and shading and are valued for providing numerous ecosystem services. In Boulder, Colorado, 25% of the urban forest are composed of ash (*Fraxinus americana* and *F. pennsylvanica*) trees. Emerald ash borer (*Agrilus planipennis*) has migrated from the eastern United States to Boulder, posing a significant threat to canopy loss and reduction in ecosystem services such as reduced urban shade and cooling. In Septemeber 2018, we surveyed air temperature in an exploratory pilot study in Boulder, Colorado in to look at the immediate impact of ash removal on air temperature at one site along Boulder Creek. We hypothesize there may be a detectable increase in local air temperature after ash tree removal. Results showed ### degree F increase in ambient air temperature in the area of ash tree removal when compared to the control ash tree and full sun control. This degree of change gives insight to the immediate changes in local weather that residents and wildlife may experience with significant urban forest canopy loss. With a larger study, we may be able to provide predictions for local urban heat dynamics under change tree canopy, as well as baseline values for restoration and intermediate intervention plans for shade.  
+
+**Introduction:** 
+With increasing in global air temperatures as well as increased urbanization, cities are needing to incorporate innovative urban heat mitigation into their strategic sustainability plans. Urban tree canopies help mitigate urban heat through evaporative cooling and shading and are valued for providing numerous ecosystem services (Moss et al. 2019). In Boulder, Colorado, ash (**Fraxinus sp.**) trees make up over 25% of Boulder's urban forest (City of Boulder Strategic Plan 2018). Emerald ash borer (**Agrilus planipennis**) has been detected and puts over a quarter of the urban canopy at a high likelihood of beetle infestation and mortality unless treatment was proactive. The loss of these mature ash trees will significantly reduce urban shade, and we hypothesize there may be a detectable increase in local air temperature after ash tree removal. The effects of ash removal on local microclimates have not been studied in Colorado and this summer 2018 study is expected to give insight to the immediate changes in local weather that residents and wildlife may experience with significant urban forest canopy loss.
+
+**Research question:** How is ambient air temperature immediately impacted by green ash tree (*Fraxinus americana*) removal? 
+
+**Hypothesis:** Air temperature will increase at the location of the removed ash trees (#100e and 101w) due to increased solar radiation and decreasing shade and evapotranspiration.
+
+**Methods:** Air temperature was measured at three sites along Boulder creek (Photo 1.) from September 17-24.Two sensor sites served as control: one site in full sun and one site under a green ash (#103) tree that was not removed. The third site had two air temperature sensors each under adjacent (2.5 m distance) ash trees (#100e and 101w) that were removed at the trunk base on September 20th between 8am - 11am. Air temperature was logged every minute using HOBO MX2201 sensors. 
+
+
+```{r global_options, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, echo=FALSE, results= FALSE)
+
+```
+
+
+```{r load-libraries, results= FALSE}
+# use install.packages("insert-package-name-here") if you get an error message that says "there is no package called ....x...."
+
+library(dplyr) # for mutate() functionality
+library(lubridate) # for as.POSIX function
+library(ggplot2)
+library(gridExtra) # for side by side plots
+library(png) # libraries for images
+library(grid) # libraries for images
+options(stringsAsFactors = FALSE) # so that dates read in as character strings not factors (factors are troublesome for converting to dates)
+```
+ 
+```{r photo1, echo=FALSE, fig.cap= "Photo 1. Aerial view of the study area, North of Boulder Creek, Boulder, Colorado."}
+img1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/aerial_map_study_area.png")
+ grid.raster(img1)
+
+```
+
+```{r photo2, echo=FALSE, fig.cap= "Photo 2. Photo of treatment site where two green ash trees (Fraxinus americana) infected with Emerald Ash Borer beetles to be removed Sept 24, 2018 from Boulder Creek, Boulder, Colorado. a) showstreatment tree 100e and b) shows treatment tree 101w. "}
+img2 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/Slide1.png")
+ grid.raster(img2)
+
+```
+
+
+```{r photo3, echo=FALSE, fig.cap= "Photo 3. a) shows the control tree (Fraxinus americana) that was not removed during the study and b) shows the control site with no trees along Boulder Creek, Boulder, Colorado."}
+img3 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/ash-report-images/Slide2.png")
+ grid.raster(img3)
+
+```
+
+
+```{r figure4, echo=FALSE, fig.cap= "Figure 1. Temperature values from the four sensors under the two treatment ash trees that were removed (101w, 100e), the control ash tree (103), and the sun control before tree removal (Sep 16-19, 2019) and after removal (Sep 21-24, 2019)."}
+fig4 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/before-after-raw-data.png")
+ grid.raster(fig4)
+
+```
+
+Differences in temperature across the study period are not striking among the four sensors, but comparison of the control sun sensor with the control tree 103 sensor shows higher maximum temperature values reached by the sun sensor. 
+
+
+
+```{r figure1, echo=FALSE, fig.cap= "Figure 2. Mean difference among sensors pairs for before and after the ash removal."}
+fig1 <- readPNG("/Users/deidrejaeger/Google Drive/UrbanEcologyResearch/Projects/BoulderAsh/ash-microclimate-study/images/boxplot_mean_diffs.png")
+ grid.raster(fig1)
+
+```
+In this figure, we can more clearly see see that the sun sensor was on average warmer than the control tree (pink), treatment trees (blue and turqoise) both before and after removal. The sun control was 1-2 degrees warmer on average than the treatment trees before the removal, and only 0-1 degrees warmer on average after the removal of the ash trees. There was a slight increase(<1 degree F) in temperature on average when comparing the before and after removal differences between the control trees and treatment trees (yellow and green). We see the two treatment trees are the most similar, with close to zero difference in average temperatures before and after removal. 
+
+######### left off on 4/7
+- report the difference values in decimal form
+- check that standard error bars are there instead of st deviation
+- 

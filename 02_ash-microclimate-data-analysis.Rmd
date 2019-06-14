@@ -377,21 +377,205 @@ paste("p-val for 100e vs 101w is ", p100e101w)
 
 
 *Step 3:* Make a barplot or boxplot to show the average difference and st error in mean temperatures in the before and after treatments.
-```{r bar-plot-avg-diffs, echo=FALSE}
+```{r bar-plot-avg-diffs-and-ST-DEVIATION, echo=FALSE}
 
 melted <- melt(ash_data_diffs, id.vars = c("diff_cat", "rem_stat", "date_time"))
 
-mean_diffs <- ddply(melted, c("diff_cat", "rem_stat"), summarise, mean = mean(value), se = sd(value))
+mean_diffs <- ddply(melted, c("diff_cat", "rem_stat"), summarise, mean = mean(value), sd = sd(value))
 
 mean_diffs$diff_cat <- as.factor(mean_diffs$diff_cat)
 
 ggplot(data = mean_diffs, aes(x = diff_cat, y = mean, color = diff_cat, fill = diff_cat)) +
   geom_bar(stat = 'identity') +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se), width = .2) +
+  geom_errorbar(aes(ymin = mean-sd, ymax = mean+sd), width = .2) +
   facet_wrap(facets = ~rem_stat)+
   theme(axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
 ```
+
+
+```{r bar-plot-avg-diffs-and-ST-ERROR, echo=FALSE}
+
+melted <- melt(ash_data_diffs, id.vars = c("diff_cat", "rem_stat", "date_time"))
+
+### ??? can I export this table
+mean_diffs <- ddply(melted, c("diff_cat", "rem_stat"), summarise, mean = mean(value), sd = sd(value))
+
+#create unique diff_cat names in each row
+
+melted1a <- melted %>% 
+  filter(diff_cat == "sun_103" & rem_stat == "before_removal") %>% 
+  mutate(diff_cat = "sun_103_before")
+melted1b <- melted %>% 
+  filter(diff_cat == "sun_103" & rem_stat == "after_removal") %>% 
+  mutate(diff_cat = "sun_103_after")
+melted2a <- melted %>% 
+  filter(diff_cat == "sun_101w" & rem_stat == "before_removal") %>% 
+  mutate(diff_cat = "sun_101w_before")
+melted2b <- melted %>% 
+  filter(diff_cat == "sun_101w" & rem_stat == "after_removal") %>% 
+  mutate(diff_cat = "sun_101w_after")
+melted3a <- melted %>% 
+  filter(diff_cat == "sun_100e" & rem_stat == "before_removal") %>% 
+  mutate(diff_cat = "sun_100e_before")
+melted3b <- melted %>% 
+  filter(diff_cat == "sun_100e" & rem_stat == "after_removal") %>% 
+  mutate(diff_cat = "sun_100e_after")
+melted4a <- melted %>% 
+  filter(diff_cat == "103_101w" & rem_stat == "before_removal") %>% 
+  mutate(diff_cat = "103_101w_before")
+melted4b <- melted %>% 
+  filter(diff_cat == "103_101w" & rem_stat == "after_removal") %>% 
+  mutate(diff_cat = "103_101w_after")
+melted5a <- melted %>% 
+  filter(diff_cat == "103_100e" & rem_stat == "before_removal") %>% 
+  mutate(diff_cat = "103_100e_before")
+melted5b <- melted %>% 
+  filter(diff_cat == "103_100e" & rem_stat == "after_removal") %>% 
+  mutate(diff_cat = "103_100e_after")
+melted6a <- melted %>% 
+  filter(diff_cat == "100e_101w" & rem_stat == "before_removal") %>% 
+  mutate(diff_cat = "100e-101w_before")
+melted6b <- melted %>% 
+  filter(diff_cat == "100e_101w" & rem_stat == "after_removal") %>% 
+  mutate(diff_cat = "100e-101w_after")
+
+# bind together back into 1 dataframe
+melted_renamed <- rbind(melted1a, melted1b, melted2a, melted2b, melted3a, melted3b, melted4a, melted4b, melted5a, melted5b, melted6a, melted6b)
+
+# calculate summary statistics
+melted_summary <- melted_renamed %>% 
+  group_by(diff_cat) %>% 
+  summarise(mean_temp_diff = mean(value), # calc mean for each diff category
+            sd_temp_dif = sd(value), # calc st. deviation
+            n_logs = n(), # calc sample size
+            SE_temp_diff = sd(value)/sqrt(n())) %>%  # calc st error of each group
+  mutate(rem_stat = rep("before_removal"))
+# fina a better way to change these factor values, manuel for now
+melted_summary$rem_stat[1] = "after_removal"
+melted_summary$rem_stat[3] = "after_removal"
+melted_summary$rem_stat[5] = "after_removal"
+melted_summary$rem_stat[7] = "after_removal"
+melted_summary$rem_stat[9] = "after_removal"
+melted_summary$rem_stat[11] = "after_removal"
+
+
+# make a bar graph with st error bars
+temp_diff_barplot <- ggplot(melted_summary, aes(diff_cat, mean_temp_diff)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean_temp_diff-SE_temp_diff, ymax = mean_temp_diff + SE_temp_diff), width = 0.2) 
+
+
+# rename the diff catogries to have just the diff groups, not the removal status
+melted_summary2 <- melted_summary %>% 
+  mutate( diff_cat = c("100e-101w", "100e-101w", "103_100e", "103_100e", "103_101w", "103_101w", "sun_100e", "sun_100e", "sun_101w", "sun_101w", "sun_103", "sun_103"))
+# return to factor
+melted_summary2$diff_cat <- as.factor(melted_summary2$diff_cat)
+
+# change the order of the removal status factor
+melted_summary2$rem_stat <- factor(melted_summary2$rem_stat, levels = c("before_removal", "after_removal"))
+
+
+# color code and facet the graph
+
+p1 <- ggplot(data = melted_summary2, aes(x = diff_cat, y = mean_temp_diff, color = diff_cat, fill = diff_cat)) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean_temp_diff-SE_temp_diff, ymax = mean_temp_diff+SE_temp_diff), width = .2) +
+  facet_wrap(facets = ~rem_stat)+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  ylab("mean difference in air temperature") +  # yaxis labels 
+  xlab("temperature sensor location pairs")  # xaxis label
+
+
+
+
+p2 <- ggplot(data = melted_summary2, aes(x = diff_cat, y = mean_temp_diff,
+                                        color = factor(diff_cat),
+                                        fill = factor(diff_cat))) +
+  geom_bar(stat = 'identity') +
+  geom_errorbar(aes(ymin = mean_temp_diff-SE_temp_diff, ymax = mean_temp_diff+SE_temp_diff), width = .2) +
+  facet_wrap(facets = ~rem_stat)+
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank()) +
+  ylab("mean difference in air temperature (F)") +  # yaxis labels 
+  xlab("temperature sensor location pairs")  # xaxis label
+
+p2 + 
+  scale_color_manual(name = "paired differences",
+                     labels = c("100e-101w (treatment-treatment)",
+                                "103-100e (control-treatment",
+                                "103-101w (control-treatment)",
+                                "sun-100e (control-treatment",
+                                "sun-101w (control-treatment",
+                                "sun-103 (control-control)"),
+                     values = c("100e-101w" = "burlywood4",
+                                "103_100e" = "green4",
+                                "103_101w" = "seagreen4",
+                                "sun_100e" = "coral4",
+                                "sun_101w" = "salmon2",
+                                "sun_103" = "grey49")) +
+  scale_fill_manual(name = "paired differences",
+                     labels = c("100e-101w (treatment-treatment)",
+                                "103-100e (control-treatment",
+                                "103-101w (control-treatment)",
+                                "sun-100e (control-treatment",
+                                "sun-101w (control-treatment",
+                                "sun-103 (control-control)"),
+                     values = c("100e-101w" = "burlywood4",
+                                "103_100e" = "green4",
+                                "103_101w" = "seagreen4",
+                                "sun_100e" = "coral4",
+                                "sun_101w" = "salmon2",
+                                "sun_103" = "grey49"))
+
+```
+
+**Step 2.3 ANOVA **
+```{r - anova}
+library(lme4)
+# run a linear model
+lm1 <- lm(value ~ diff_cat, data = melted_renamed) 
+summary(lm1)
+
+# run an anova
+aov1 <- aov(value ~ diff_cat, data = melted_renamed)
+summary(aov1)
+
+
+# Tukey's test to look at pairwise comparisons
+tukey.test <- TukeyHSD(aov1)
+tukey.test
+
+
+```
+
+
+
+```{r merge-difference-to-single-graph}
+# add before after difference
+melted_summary3 <- melted_summary %>%
+  mutate(b_a_diff = c("0.2695", "0.2695", "-0.4724", "-0.4724", "-0.2029", "-0.2029", "-1.0228", "-1.0228", "-0.7532", "-0.7532", "-0.5504", "-0.5504"))
+
+# make a bar graph with st error bars
+ggplot(melted_summary3, aes(diff_cat, b_a_diff)) +
+  geom_col() 
+  geom_errorbar(aes(ymin = b_a_diff-SE_temp_diff, ymax = mean_temp_diff + SE_temp_diff), width = 0.2) 
+
+
+```
+
+
+```{r}
+
+# make a bar graph with st error bars
+temp_diff_barplot <- ggplot(melted_summary, aes(diff_cat, mean_temp_diff)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = mean_temp_diff-SE_temp_diff, ymax = mean_temp_diff + SE_temp_diff), width = 0.2)
+
+```
+
+
 
 ```{r box-plot-avg-diffs, echo=FALSE}
 
@@ -430,3 +614,4 @@ ash_data_diffs %>%
   geom_line(mapping = aes(x = date_time, y = diff_tempF, color = diff_cat)) +
   facet_wrap(facets = ~ rem_stat) 
 ```
+

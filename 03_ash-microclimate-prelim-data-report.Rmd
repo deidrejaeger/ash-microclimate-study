@@ -476,7 +476,7 @@ min_vals$alph_stat <- factor(min_vals$ash_removal, levels= c("before_removal", "
 
 ```
 
-```{r barplot-max-values}
+```{r barplot-min-values}
 min_vals %>%
   group_by(ash_removal) %>% 
   ggplot() +
@@ -486,3 +486,8 @@ min_vals %>%
   geom_text(aes(label = tempF, x = sensor_name, y = tempF, fill= sensor_name)) +
   facet_grid(alph_stat ~ .)
 ```
+
+```{r}
+
+```
+
